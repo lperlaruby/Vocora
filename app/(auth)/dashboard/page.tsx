@@ -9,7 +9,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {useRouter} from "next/navigation";
 import dashBoardTranslations from "@/lang/Dashboard";
 import welcomeTranslations from "@/lang/Dashboard/welcome";
-import {Navbar} from "@/components/dashboard/navbar";
+import { Navbar } from "@/components/Navbar";
 import {SupportChat} from "@/components/support-chat";
 import storyGenerator from "@/lang/Story-Generator/story-generator";
 import {Input} from "@/components/ui/input"
@@ -57,11 +57,18 @@ function DashboardPage() {
   const [showTranslation, setShowTranslation] = useState(false);
   const [showSavedTranslation, setShowSavedTranslation] = useState(false);
 
+  // Add authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   // Check if user is authenticated
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) router.push("/login");
+      if (!session) {
+        router.push("/login");
+      } else {
+        setIsAuthenticated(true);
+      }
     };
     checkAuth();
   }, [router]);
@@ -171,7 +178,7 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
-      <Navbar/>
+      <Navbar isAuthenticated={isAuthenticated} />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Welcome Section */}

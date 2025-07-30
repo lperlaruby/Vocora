@@ -13,7 +13,7 @@ import Translations from "@/lang/Dashboard/writing";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { List, MessageSquare, Plus, X } from "lucide-react";
-import { Navbar } from "@/components/dashboard/navbar";
+import { Navbar } from "@/components/Navbar";
 import { useUserPreferences } from "@/hooks/account/useUserPreferences";
 import languageDisplayNames from "@/lang/Dashboard/practiceLangDisplay";
 

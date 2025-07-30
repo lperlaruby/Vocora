@@ -1,101 +1,134 @@
 "use client";
 
 import Link from "next/link";
-import { useLanguage } from "@/lang/LanguageContext"; // Import the useLanguage hook
-import navbarTranslations from "@/lang/Navbar"; // Ensure the import is correct
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Menu } from "lucide-react"
-import { useState } from "react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { useLanguage } from "@/lang/LanguageContext"; // Only once!
+import navbarTranslations from "@/lang/Navbar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import dashBoardTranslations from "@/lang/Dashboard";
+import { LogOut, User, Settings, Sparkles, X } from "lucide-react"; // Remove Menu here
+import { Menu } from "lucide-react"; // Or, if you want, just import Menu here and remove from above
 
-export function Navbar() {
-  const { language, setLanguage } = useLanguage(); // Get language and setter
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const translated = navbarTranslations[language]
+type NavbarProps = {
+  isAuthenticated?: boolean;
+  showDashboard?: boolean;
+  showProgress?: boolean;
+  showAccount?: boolean;
+  showSettings?: boolean;
+  showLogout?: boolean;
+  customLinks?: Array<{ href: string; label: string; icon?: React.ReactNode }>;
+};
+
+export function Navbar({
+  isAuthenticated = false,
+  showDashboard,
+  showProgress,
+  showAccount,
+  showSettings,
+  showLogout = true,
+  customLinks = [],
+}: NavbarProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { language } = useLanguage();
+  const translated = dashBoardTranslations[language];
+
+  // Auth links for landing page
+  const authLinks = [
+    { href: "/login", label: "Log In" },
+    { href: "/signup", label: "Sign Up" },
+  ];
+
+  // Dashboard links for authenticated users
+  const navLinks = [
+    showDashboard && {
+      href: "/dashboard",
+      label: translated.navBar.dashboard,
+      icon: <Sparkles className="h-4 w-4" />,
+    },
+    showProgress && {
+      href: "/dashboard/progress",
+      label: translated.navBar.progressDays,
+      icon: <Sparkles className="h-4 w-4" />,
+    },
+    showAccount && {
+      href: "/dashboard/account",
+      label: translated.navBar.account,
+      icon: <User className="h-4 w-4" />,
+    },
+    showSettings && {
+      href: "/dashboard/settings",
+      label: translated.navBar.settings,
+      icon: <Settings className="h-4 w-4" />,
+    },
+    ...customLinks,
+    showLogout && {
+      href: "/",
+      label: translated.navBar.logout,
+      icon: <LogOut className="h-4 w-4" />,
+    },
+  ].filter(Boolean);
 
   return (
-    <nav className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 to-violet-500 text-white">
+    <header className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 to-violet-500 text-white">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold">
+        <Link href="/" className="text-2xl font-bold text-white">
           Vocora
         </Link>
-
-        {/* Desktop Navigation */}
+        {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/login" className="text-white hover:text-purple-100 transition-colors">
-            {translated.login}
-          </Link>
-          <Link href="/signup" className="text-white hover:text-purple-100 transition-colors">
-            {translated.signup}
-          </Link>
-          <Select
-            onValueChange={(val) => {
-              if (val === "en" || val === "es" || val === "zh") {
-                setLanguage(val);
-                localStorage.setItem("language", val);
-              }
-            }}
-            value={language}
-          >
-            <SelectTrigger className="w-[120px] bg-white/20 border-white/30 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="es">Español</SelectItem>
-              <SelectItem value="zh">中文</SelectItem>
-            </SelectContent>
-          </Select>
-          <ThemeToggle />
+          {!isAuthenticated
+            ? authLinks.map((link, idx) => (
+                <Link key={idx} href={link.href}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/30 bg-white/20 text-white hover:bg-white/30"
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              ))
+            : navLinks.map((link, idx) => (
+                <Link key={idx} href={link!.href}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/30 bg-white/20 text-white hover:bg-white/30 flex items-center gap-1"
+                  >
+                    {link!.icon}
+                    <span>{link!.label}</span>
+                  </Button>
+                </Link>
+              ))}
+          <div className="border-l border-white/20 pl-4 ml-2">
+            <ThemeToggle />
+          </div>
         </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-2">
-          <ThemeToggle />
-          <button className="text-white p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <Menu size={24} />
+        {/* Mobile Nav Button */}
+        <div className="flex md:hidden items-center gap-4">
+          <button
+            className="text-white p-1"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
+          <ThemeToggle />
         </div>
       </div>
-
-      {/* Mobile Navigation */}
+      {/* Mobile Nav */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-purple-700 py-3 px-4 flex flex-col gap-3">
-          <Link
-            href="/login"
-            className="text-white hover:text-purple-100 transition-colors py-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            {translated.login}
-          </Link>
-          <Link
-            href="/signup"
-            className="text-white hover:text-purple-100 transition-colors py-2"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            {translated.signup}
-          </Link>
-          <Select 
-            onValueChange={(val) => {
-              if (val === "en" || val === "es" || val === "zh") {
-                setLanguage(val);
-                localStorage.setItem("language", val);
-              }
-            }}
-            value={language}
-          >
-            <SelectTrigger className="w-full bg-white/20 border-white/30 text-white mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="es">Español</SelectItem>
-              <SelectItem value="zh">中文</SelectItem>
-            </SelectContent>
-          </Select>
+          {navLinks.map((link, idx) => (
+            <Link key={idx} href={link!.href} className="py-2 flex items-center gap-2 text-white">
+              {link!.icon}
+              <span>{link!.label}</span>
+            </Link>
+          ))}
         </div>
-        )
-      }
-    </nav>
+      )}
+    </header>
   );
 }
