@@ -10,12 +10,34 @@ type Language = "en" | "es" | "zh";
 const LanguageContext = createContext<{
   language: Language;
   setLanguage: (lang: Language) => void;
+  reloadFromDatabase: () => Promise<void>;
 } | null>(null);
 
 // Create provider component
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
   const [isLoading, setIsLoading] = useState(true);
+
+  // Function to reload language preference from database
+  const reloadFromDatabase = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("preferred_lang")
+        .eq("uid", session.user.id)
+        .single();
+        
+      if (data?.preferred_lang) {
+        setLanguage(data.preferred_lang as Language);
+        // Update localStorage to stay in sync
+        if (typeof window !== "undefined") {
+          localStorage.setItem("language", data.preferred_lang);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     const loadUserLanguagePreference = async () => {
@@ -32,6 +54,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           
         if (data?.preferred_lang) {
           setLanguage(data.preferred_lang as Language);
+          // Update localStorage to stay in sync
+          if (typeof window !== "undefined") {
+            localStorage.setItem("language", data.preferred_lang);
+          }
           setIsLoading(false);
           return;
         }
@@ -61,7 +87,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: changeLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage: changeLanguage, reloadFromDatabase }}>
       {children}
     </LanguageContext.Provider>
   );

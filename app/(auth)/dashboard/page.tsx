@@ -226,48 +226,9 @@ function DashboardPage() {
     }
   }, [userId]);
 
-  // Add debugging right before the return statement
-  console.log("Dashboard render check:", {
-    languageReady,
-    isAuthenticated,
-    language,
-    practiceLang
-  });
-
   // Use the forced value instead of the hook value
   if (!actualLanguageReady) {
     return null;
-  }
-
-  // Or even simpler - just comment out the check entirely:
-  // if (!languageReady) {
-  //   return null;
-  // }
-
-  // Add debugging to see what's happening
-  console.log("Dashboard debug:", {
-    languageReady,
-    language,
-    isAuthenticated
-  });
-
-  // Also add debugging to see if the component is even being reached
-  console.log("Dashboard is rendering...");
-
-  // Comment out the languageReady check to get the dashboard working
-  console.log("Dashboard debug:", {
-    languageReady,
-    language,
-    isAuthenticated
-  });
-
-  // if (!languageReady) {
-  //   return null;
-  // }
-
-  // Add a temporary message to see what's happening
-  if (!languageReady) {
-    console.log("Language not ready, but rendering dashboard anyway");
   }
 
   return (
@@ -988,10 +949,8 @@ function DashboardPage() {
         </div>
       </main>
 
-      <footer className="mt-12 border-t border-purple-100 py-8 text-center text-sm text-slate-500 dark:border-purple-900 dark:text-slate-400">
-        <div className="container mx-auto">
-          <p>{translated.footerText}</p>
-        </div>
+      <footer className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40 text-center text-sm text-slate-500 dark:text-slate-400">
+        <p>{translated.footerText}</p>
       </footer>
     </div>
   );

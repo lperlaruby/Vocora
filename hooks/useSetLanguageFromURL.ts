@@ -9,13 +9,7 @@ export function useSetLanguageFromURL() {
   const langFromURL = searchParams?.get("lang");
   const [languageReady, setLanguageReady] = useState(false);
 
-  // Add debug logging
-  console.log("useSetLanguageFromURL debug:", {
-    language,
-    langFromURL,
-    languageReady,
-    searchParams: searchParams?.toString()
-  });
+  // Monitor language changes from URL parameters
 
   // If language is in URL, update the language context.
   useEffect(() => {
@@ -24,9 +18,8 @@ export function useSetLanguageFromURL() {
     }
   }, [langFromURL, setLanguage]);
 
-  // SIMPLIFIED: Just set languageReady to true after a short delay
+  // Set languageReady to true after a short delay
   useEffect(() => {
-    console.log("Setting languageReady to true...");
     const timer = setTimeout(() => {
       setLanguageReady(true);
     }, 100);
@@ -34,11 +27,11 @@ export function useSetLanguageFromURL() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Prevents all actions until language is "ready".
+  // Initialize user preferences once when language is ready
   useEffect(() => {
     if (!languageReady) return;
 
-    const logUserLanguage = async () => {
+    const initializeUserLanguage = async () => {
       // Gets the current user session.
       const sessionResult = await supabase.auth.getSession();
       const session = sessionResult.data.session;
@@ -51,42 +44,34 @@ export function useSetLanguageFromURL() {
       // Extracts user's information.
       const user = session.user;
       
-      // Inserts user's preferences into Supabase table.
-      const { error: insertError } = await supabase
+      // Check if user already has preferences
+      const { data: existingData } = await supabase
         .from("user_preferences")
-        .insert({
-          uid: user.id,
-          preferred_lang: language,
-        })
-        .select();
-      
-      // If row already exists, update it.
-      if (insertError) {
-        if (insertError.code === "23505" || insertError.message.includes("duplicate key")) {
-          console.warn("Insert failed: row exists. Updating instead.");
+        .select("preferred_lang")
+        .eq("uid", user.id)
+        .single();
 
-          const { error: updateError } = await supabase
-            .from("user_preferences")
-            .update({
-              preferred_lang: language,
-            })
-            .eq("uid", user.id);
+      // Only insert if no preferences exist
+      if (!existingData) {
+        const { error: insertError } = await supabase
+          .from("user_preferences")
+          .insert({
+            uid: user.id,
+            preferred_lang: language,
+          })
+          .select();
 
-          if (updateError) {
-            console.error("User preferences update failed:", updateError.message);
-          } else {
-            console.log("User preferences updated successfully!");
-          }
+        if (insertError) {
+          console.error("Failed to initialize user preferences:", insertError.message);
         } else {
-          console.error("User preferences insert failed:", insertError.message);
+          console.log("User preferences initialized successfully!");
         }
-      } else {
-        console.log("User preferences inserted successfully!");
       }
     };
-    // Runs when language changes
-    logUserLanguage();
-  }, [languageReady, language]);
+    
+    // Only runs once when language is ready, not on every language change
+    initializeUserLanguage();
+  }, [languageReady]);
 
   return languageReady;
 };
