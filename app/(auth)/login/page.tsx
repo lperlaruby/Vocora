@@ -87,16 +87,14 @@ export default function LoginPage() {
     setError(null);
 
     const googleLang = language === "es" ? "es-419" : language;
+    // For existing users, we'll check if they have preferences and redirect accordingly
     const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/dashboard?lang=${language}`;
-    // For right now: 
-    // const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/success`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: redirectURL,
         queryParams: {
-          // Changes the Google OAuth login screen language
           hl: googleLang,
         },
       },

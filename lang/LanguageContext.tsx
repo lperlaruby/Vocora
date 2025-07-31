@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
 
 // Define a type for the supported languages
 type Language = "en" | "es" | "zh";
@@ -13,18 +14,42 @@ const LanguageContext = createContext<{
 
 // Create provider component
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Initialize state to "en" and set it to the saved language from localStorage if available
-  const [language, setLanguage] = useState<Language>("en"); // Default to English
+  const [language, setLanguage] = useState<Language>("en");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the window object is available before accessing localStorage
-    if (typeof window !== "undefined") {
-      const savedLanguage = localStorage.getItem("language");
-      const validLanguages = ["en", "es", "zh"];
-      if (savedLanguage && validLanguages.includes(savedLanguage)) {
-        setLanguage(savedLanguage as Language);
+    const loadUserLanguagePreference = async () => {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Load from database for authenticated users
+        const { data } = await supabase
+          .from("user_preferences")
+          .select("preferred_lang")
+          .eq("uid", session.user.id)
+          .single();
+          
+        if (data?.preferred_lang) {
+          setLanguage(data.preferred_lang as Language);
+          setIsLoading(false);
+          return;
+        }
       }
-    }
+      
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        const savedLanguage = localStorage.getItem("language");
+        const validLanguages = ["en", "es", "zh"];
+        if (savedLanguage && validLanguages.includes(savedLanguage)) {
+          setLanguage(savedLanguage as Language);
+        }
+      }
+      
+      setIsLoading(false);
+    };
+
+    loadUserLanguagePreference();
   }, []);
 
   // Save language to localStorage when it changes

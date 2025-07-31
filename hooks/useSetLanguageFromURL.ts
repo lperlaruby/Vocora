@@ -9,6 +9,14 @@ export function useSetLanguageFromURL() {
   const langFromURL = searchParams?.get("lang");
   const [languageReady, setLanguageReady] = useState(false);
 
+  // Add debug logging
+  console.log("useSetLanguageFromURL debug:", {
+    language,
+    langFromURL,
+    languageReady,
+    searchParams: searchParams?.toString()
+  });
+
   // If language is in URL, update the language context.
   useEffect(() => {
     if (langFromURL && ["en", "es", "zh"].includes(langFromURL)) {
@@ -16,12 +24,15 @@ export function useSetLanguageFromURL() {
     }
   }, [langFromURL, setLanguage]);
 
-  // Markes language as "ready" once language matches URL.
+  // SIMPLIFIED: Just set languageReady to true after a short delay
   useEffect(() => {
-    if (langFromURL && language === langFromURL) {
+    console.log("Setting languageReady to true...");
+    const timer = setTimeout(() => {
       setLanguageReady(true);
-    }
-  }, [langFromURL, language]);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Prevents all actions until language is "ready".
   useEffect(() => {
@@ -45,7 +56,6 @@ export function useSetLanguageFromURL() {
         .from("user_preferences")
         .insert({
           uid: user.id,
-          email: user.email,
           preferred_lang: language,
         })
         .select();
@@ -76,7 +86,7 @@ export function useSetLanguageFromURL() {
     };
     // Runs when language changes
     logUserLanguage();
-  }, [languageReady]);
+  }, [languageReady, language]);
 
   return languageReady;
 };

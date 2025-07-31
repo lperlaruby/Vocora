@@ -29,9 +29,20 @@ import {useUserPreferences} from "@/hooks/account/useUserPreferences";
 import {useWritingFeedback} from "@/hooks/writing/useWritingFeedback";
 import languageDisplayNames from "@/lang/Dashboard/practiceLangDisplay";
 import { splitIntoWords, cleanWord } from "@/lib/utils";
+import { updateDailyStreak } from "../../../hooks/account/useUpdateDailyStreak";
+import { useDailyStreak } from "../../../hooks/account/useDailyStreak";
+import { useUser } from "@/hooks/account/useUser";
+
+async function getUserId() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id;
+}
 
 function DashboardPage() {
   const languageReady = useSetLanguageFromURL();
+  // Force languageReady to be true for now
+  const actualLanguageReady = true; // Add this line
+  
   const {language, setLanguage} = useLanguage();
   const router = useRouter();
   const translated = dashBoardTranslations[language];
@@ -72,6 +83,39 @@ function DashboardPage() {
     };
     checkAuth();
   }, [router]);
+
+  // Add this useEffect in the DashboardPage component, after the authentication check
+  useEffect(() => {
+    const checkLanguagePreferences = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      try {
+        // Check if user has language preferences
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .select("preferred_lang, practice_lang")
+          .eq("uid", session.user.id)
+          .single();
+
+        console.log("Language preferences check:", { data, error });
+
+        // TEMPORARILY COMMENT OUT THE REDIRECT TO DEBUG
+        // if (!data || !data.preferred_lang || !data.practice_lang) {
+        //   console.log("No preferences found, redirecting to language-setup");
+        //   router.push("/language-setup");
+        // } else {
+        //   console.log("Preferences found:", data);
+        // }
+      } catch (error) {
+        console.error("Error checking language preferences:", error);
+      }
+    };
+
+    if (isAuthenticated) {
+      checkLanguagePreferences();
+    }
+  }, [isAuthenticated, router]);
 
   // Set saving message when language changes
   useEffect(() => {
@@ -172,8 +216,58 @@ function DashboardPage() {
     await convertToSpeech(story);
   };
 
-  if (!languageReady) {
+  const user = useUser();
+  const userId = user?.id;
+  const streak = useDailyStreak(userId);
+
+  useEffect(() => {
+    if (userId) {
+      updateDailyStreak(userId);
+    }
+  }, [userId]);
+
+  // Add debugging right before the return statement
+  console.log("Dashboard render check:", {
+    languageReady,
+    isAuthenticated,
+    language,
+    practiceLang
+  });
+
+  // Use the forced value instead of the hook value
+  if (!actualLanguageReady) {
     return null;
+  }
+
+  // Or even simpler - just comment out the check entirely:
+  // if (!languageReady) {
+  //   return null;
+  // }
+
+  // Add debugging to see what's happening
+  console.log("Dashboard debug:", {
+    languageReady,
+    language,
+    isAuthenticated
+  });
+
+  // Also add debugging to see if the component is even being reached
+  console.log("Dashboard is rendering...");
+
+  // Comment out the languageReady check to get the dashboard working
+  console.log("Dashboard debug:", {
+    languageReady,
+    language,
+    isAuthenticated
+  });
+
+  // if (!languageReady) {
+  //   return null;
+  // }
+
+  // Add a temporary message to see what's happening
+  if (!languageReady) {
+    console.log("Language not ready, but rendering dashboard anyway");
   }
 
   return (
@@ -190,6 +284,12 @@ function DashboardPage() {
                     <div>
                       <h2 className="text-2xl font-bold mb-2">{translated.greeting}</h2>
                       <p className="text-purple-100 text-lg">{translated.continue}</p>
+                      {typeof streak === "number" && (
+                        <div className="mt-3 text-yellow-400 font-semibold flex items-center gap-2">
+                          <span role="img" aria-label="fire">🔥</span>
+                          <span>{`${translated.dailyStreak.label}: ${streak} ${streak === 1 ? translated.dailyStreak.day : translated.dailyStreak.days}`}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-col items-end gap-4">

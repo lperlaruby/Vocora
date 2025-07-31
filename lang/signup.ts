@@ -24,7 +24,17 @@ const signupTranslations = {
         "At least one upper case letter[A-Z]",
         "At least one numeral [0-9]",
         "At least one special character [~!@#^-&*()_]",
-      ]
+      ],
+      // Add these new fields:
+      interfaceLanguageLabel: "App Interface Language",
+      interfaceLanguageDescription: "What language should the app be displayed in?",
+      practiceLanguageLabel: "Learning Language", 
+      practiceLanguageDescription: "What language would you like to practice?",
+      languageOptions: {
+        english: "English",
+        spanish: "Spanish", 
+        chinese: "Chinese"
+      }
     },
     es: {
       title: "Regístrate",
@@ -48,7 +58,17 @@ const signupTranslations = {
         "Al menos una letra mayúscula [A-Z]",
         "Al menos un número [0-9]",
         "Al menos un carácter especial [~!@#^-&*()_]",
-      ]
+      ],
+      // Add these new fields:
+      interfaceLanguageLabel: "Idioma de la interfaz",
+      interfaceLanguageDescription: "¿En qué idioma debe mostrarse la aplicación?",
+      practiceLanguageLabel: "Idioma de aprendizaje",
+      practiceLanguageDescription: "¿Qué idioma te gustaría practicar?",
+      languageOptions: {
+        english: "Inglés",
+        spanish: "Español",
+        chinese: "Chino"
+      }
     },
     zh: {
       title: "注册",
@@ -72,7 +92,17 @@ const signupTranslations = {
         "至少一个大写字母 [A-Z]",
         "至少一个数字 [0-9]",
         "至少一个特殊字符 [~!@#^-&*()_]",
-      ]
+      ],
+      // Add these new fields:
+      interfaceLanguageLabel: "界面语言",
+      interfaceLanguageDescription: "应用应该用什么语言显示？",
+      practiceLanguageLabel: "学习语言", 
+      practiceLanguageDescription: "你想练习什么语言？",
+      languageOptions: {
+        english: "英语",
+        spanish: "西班牙语",
+        chinese: "中文"
+      }
     },
   } as const; // Use 'as const' to make the structure readonly
   

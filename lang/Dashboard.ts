@@ -78,6 +78,12 @@ const dashBoardTranslations = {
         loading: "Loading...",
         footerText: "Built with ❤️ by Vocora - 2025",
         deleteStory: "Delete Story",
+        
+        dailyStreak: {
+            label: "Daily Streak",
+            day: "day",
+            days: "days",
+        },
     },
     es: {
         navBar:{
@@ -157,6 +163,12 @@ const dashBoardTranslations = {
         loading: "Cargando...",
         footerText: "Construido con ❤️ por Vocora - 2025",
         deleteStory: "Eliminar historia",
+        
+        dailyStreak: {
+            label: "Racha Diaria",
+            day: "día",
+            days: "días",
+        },
     },
     zh: {
         navBar:{
@@ -235,6 +247,12 @@ const dashBoardTranslations = {
         loading: "加载中...",
         footerText: "由Vocora - 2025 ❤️构建",
         deleteStory: "删除故事",
+        
+        dailyStreak: {
+            label: "每日连击",
+            day: "天",
+            days: "天",
+        },
     },
   };
   

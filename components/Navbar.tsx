@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import dashBoardTranslations from "@/lang/Dashboard";
-import { LogOut, User, Settings, Sparkles, X } from "lucide-react"; // Remove Menu here
+import { LogOut, User, Settings, Sparkles, X, Globe } from "lucide-react"; // Remove Menu here
 import { Menu } from "lucide-react"; // Or, if you want, just import Menu here and remove from above
 
 type NavbarProps = {
@@ -31,8 +31,14 @@ export function Navbar({
   customLinks = [],
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const translated = dashBoardTranslations[language];
+
+  const languageOptions = [
+    { value: "en", label: "English" },
+    { value: "es", label: "Español"},
+    { value: "zh", label: "中文"}
+  ];
 
   // Auth links for landing page
   const authLinks = [
@@ -102,12 +108,53 @@ export function Navbar({
                   </Button>
                 </Link>
               ))}
-          <div className="border-l border-white/20 pl-4 ml-2">
+          <div className="border-l border-white/20 pl-4 ml-2 flex items-center gap-3">
+            <Select value={language} onValueChange={(value: "en" | "es" | "zh") => setLanguage(value)}>
+              <SelectTrigger className="w-[140px] bg-white/20 border-white/30 text-white">
+                <SelectValue>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span>{languageOptions.find(opt => opt.value === language)?.flag}</span>
+                    <span className="hidden sm:inline">{languageOptions.find(opt => opt.value === language)?.label}</span>
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {languageOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <div className="flex items-center gap-2">
+                      <span>{option.flag}</span>
+                      <span>{option.label}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <ThemeToggle />
           </div>
         </div>
         {/* Mobile Nav Button */}
-        <div className="flex md:hidden items-center gap-4">
+        <div className="flex md:hidden items-center gap-2">
+          <Select value={language} onValueChange={(value: "en" | "es" | "zh") => setLanguage(value)}>
+            <SelectTrigger className="w-[60px] bg-white/20 border-white/30 text-white">
+              <SelectValue>
+                <div className="flex items-center gap-1">
+                  <span>{languageOptions.find(opt => opt.value === language)?.flag}</span>
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {languageOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className="flex items-center gap-2">
+                    <span>{option.flag}</span>
+                    <span>{option.label}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <ThemeToggle />
           <button
             className="text-white p-1"
             onClick={() => setMobileMenuOpen((open) => !open)}
@@ -115,7 +162,6 @@ export function Navbar({
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <ThemeToggle />
         </div>
       </div>
       {/* Mobile Nav */}
