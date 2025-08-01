@@ -55,11 +55,12 @@ export function useSetLanguageFromURL() {
       if (!existingData) {
         const { error: insertError } = await supabase
           .from("user_preferences")
-          .insert({
+          .upsert({
             uid: user.id,
             preferred_lang: language,
-          })
-          .select();
+          }, {
+            onConflict: 'uid'
+          });
 
         if (insertError) {
           console.error("Failed to initialize user preferences:", insertError.message);

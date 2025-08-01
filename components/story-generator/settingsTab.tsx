@@ -17,19 +17,35 @@ export function SettingsTab({ onClose }: SettingsTabProps) {
 
   useEffect(() => {
     const fetchPreferences = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const session = sessionData.session;
-      if (!session) return;
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData.session;
+        if (!session) {
+          console.warn("No session found in story-generator settings");
+          return;
+        }
 
-      const { data, error } = await supabase
-        .from("user_preferences")
-        .select("preferred_lang, practice_lang")
-        .eq("uid", session.user.id)
-        .single();
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .select("preferred_lang, practice_lang")
+          .eq("uid", session.user.id)
+          .single();
 
-      if (!error && data) {
-        setPreferredLang(data.preferred_lang);
-        setPracticeLang(data.practice_lang);
+        if (error) {
+          console.error("Error fetching preferences in story-generator settings:", error);
+          return;
+        }
+
+        if (data) {
+          if (data.preferred_lang && ["en", "es", "zh"].includes(data.preferred_lang)) {
+            setPreferredLang(data.preferred_lang);
+          }
+          if (data.practice_lang && ["en", "es", "zh"].includes(data.practice_lang)) {
+            setPracticeLang(data.practice_lang);
+          }
+        }
+      } catch (error) {
+        console.error("Error in fetchPreferences:", error);
       }
     };
 
@@ -37,17 +53,39 @@ export function SettingsTab({ onClose }: SettingsTabProps) {
   }, []);
 
   const updatePreference = async (field: "preferred_lang" | "practice_lang", value: "en" | "es" | "zh") => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const session = sessionData.session;
-    if (!session) return;
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData.session;
+      if (!session) {
+        console.error("No session found");
+        return;
+      }
 
-    const { error } = await supabase
-      .from("user_preferences")
-      .update({ [field]: value })
-      .eq("uid", session.user.id);
+      const { error } = await supabase
+        .from("user_preferences")
+        .upsert({
+          uid: session.user.id,
+          [field]: value
+        }, {
+          onConflict: 'uid'
+        });
 
-    if (!error && field === "preferred_lang") {
-      setLanguage(value);
+      if (error) {
+        console.error(`Error updating ${field}:`, error);
+        return;
+      }
+
+      // Update local state
+      if (field === "preferred_lang") {
+        setPreferredLang(value);
+        setLanguage(value);
+      } else {
+        setPracticeLang(value);
+      }
+
+      console.log(`${field} updated successfully to ${value}`);
+    } catch (error) {
+      console.error(`Error in updatePreference for ${field}:`, error);
     }
   };
 

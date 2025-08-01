@@ -23,7 +23,7 @@ import {useAudio} from "@/hooks/story-generator/useAudio";
 import {useHoverWord} from "@/hooks/story-generator/useHoverDefinitions";
 import ReactMarkdown from "react-markdown";
 import Translations from "@/lang/Dashboard/writing";
-import {useSetLanguageFromURL} from "@/hooks/useSetLanguageFromURL";
+// import {useSetLanguageFromURL} from "@/hooks/useSetLanguageFromURL"; // Removed to fix language settings conflicts
 import {useSaveStory} from "@/hooks/story-generator/useSaveStory";
 import {useUserPreferences} from "@/hooks/account/useUserPreferences";
 import {useWritingFeedback} from "@/hooks/writing/useWritingFeedback";
@@ -39,7 +39,8 @@ async function getUserId() {
 }
 
 function DashboardPage() {
-  const languageReady = useSetLanguageFromURL();
+  // Remove the conflicting useSetLanguageFromURL hook
+  // const languageReady = useSetLanguageFromURL();
   // Force languageReady to be true for now
   const actualLanguageReady = true; // Add this line
   
@@ -216,7 +217,7 @@ function DashboardPage() {
     await convertToSpeech(story);
   };
 
-  const user = useUser();
+  const { user } = useUser();
   const userId = user?.id;
   const streak = useDailyStreak(userId);
 
@@ -245,26 +246,14 @@ function DashboardPage() {
                     <div>
                       <h2 className="text-2xl font-bold mb-2">{translated.greeting}</h2>
                       <p className="text-purple-100 text-lg">{translated.continue}</p>
-                      {typeof streak === "number" && (
-                        <div className="mt-3 text-yellow-400 font-semibold flex items-center gap-2">
-                          <span role="img" aria-label="fire">🔥</span>
-                          <span>{`${translated.dailyStreak.label}: ${streak} ${streak === 1 ? translated.dailyStreak.day : translated.dailyStreak.days}`}</span>
-                        </div>
-                      )}
                     </div>
-
-                    <div className="flex flex-col items-end gap-4">
-                      <Select value={practiceLang} onValueChange={handlePracticeLangChange}>
-                        <SelectTrigger className="w-full md:w-[180px] bg-white/20 border-white/30 text-white">
-                          <SelectValue placeholder="Select language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="en">{langDisplay["en"]}</SelectItem>
-                          <SelectItem value="es">{langDisplay["es"]}</SelectItem>
-                          <SelectItem value="zh">{langDisplay["zh"]}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    
+                    {typeof streak === "number" && (
+                      <div className="text-yellow-400 font-semibold flex items-center gap-2">
+                        <span role="img" aria-label="fire">🔥</span>
+                        <span>{`${translated.dailyStreak.label}: ${streak} ${streak === 1 ? translated.dailyStreak.day : translated.dailyStreak.days}`}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

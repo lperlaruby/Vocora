@@ -45,9 +45,9 @@ export function Navbar({
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
   const languageOptions = [
-    { value: "en", label: "English", flag: "🇺🇸" },
-    { value: "es", label: "Español", flag: "🇪🇸"},
-    { value: "zh", label: "中文", flag: "🇨🇳"}
+    { value: "en", label: "English"},
+    { value: "es", label: "Español"},
+    { value: "zh", label: "中文"}
   ];
 
   // Auth links for landing page

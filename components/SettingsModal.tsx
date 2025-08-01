@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import { useUserPreferences } from "@/hooks/account/useUserPreferences";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock, Globe, Languages, Palette } from "lucide-react";
+import settingsTranslations from "@/lang/SettingsTab";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -25,7 +26,10 @@ interface SettingsModalProps {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, reloadFromDatabase } = useLanguage();
-  const user = useUser();
+  const { user, loading: userLoading } = useUser();
+  
+  // Get translations for current language
+  const t = settingsTranslations[language];
   
   // State for password change
   const [currentPassword, setCurrentPassword] = useState("");
@@ -38,24 +42,31 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   
   // State for practice language
   const [practiceLang, setPracticeLang] = useState<"en" | "es" | "zh">("en");
-  const { updatePracticeLang, fetchUserData } = useUserPreferences(setPracticeLang);
+  const [isUpdatingPracticeLang, setIsUpdatingPracticeLang] = useState(false);
+  
+  // Use useCallback to prevent unnecessary re-renders of useUserPreferences
+  const setPracticeLangCallback = useCallback((val: "en" | "es" | "zh") => {
+    setPracticeLang(val);
+  }, []);
+  
+  const { updatePracticeLang, fetchUserData } = useUserPreferences(setPracticeLangCallback);
   
   // State for language preferences with save button
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "es" | "zh">("en");
   const [isSavingLanguage, setIsSavingLanguage] = useState(false);
   
-  // Language options
+  // Language options using translations
   const languageOptions = [
-    { value: "en", label: "English", flag: "🇺🇸" },
-    { value: "es", label: "Español", flag: "🇪🇸" },
-    { value: "zh", label: "中文", flag: "🇨🇳" }
+    { value: "en", label: t.languages.english },
+    { value: "es", label: t.languages.spanish},
+    { value: "zh", label: t.languages.mandarin}
   ];
 
-  // Practice language options
+  // Practice language options using translations
   const practiceLanguageOptions = [
-    { value: "en", label: "English" },
-    { value: "es", label: "Español" },
-    { value: "zh", label: "中文" }
+    { value: "en", label: t.languages.english },
+    { value: "es", label: t.languages.spanish },
+    { value: "zh", label: t.languages.mandarin }
   ];
 
   // Initialize selectedLanguage with current language
@@ -116,6 +127,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   // Save language preference to database
   const saveLanguagePreference = async () => {
+    if (userLoading) {
+      toast.error("Please wait for authentication to complete");
+      return;
+    }
+
     if (!user?.id) {
       toast.error("User not authenticated");
       return;
@@ -137,7 +153,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         console.error("Error saving language preference:", error);
         toast.error("Failed to save language preference");
       } else {
-        // Reload language preference from database to ensure consistency
+        // Update language immediately and also reload from database for consistency
+        setLanguage(selectedLanguage);
+        console.log("Language updated immediately to:", selectedLanguage);
         await reloadFromDatabase();
         toast.success("Language preference saved successfully!");
       }
@@ -151,17 +169,27 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   // Handle practice language change
   const handlePracticeLanguageChange = async (newLang: "en" | "es" | "zh") => {
-    setPracticeLang(newLang);
-    await updatePracticeLang(newLang);
-    toast.success("Practice language updated");
+    setIsUpdatingPracticeLang(true);
+    
+    try {
+      await updatePracticeLang(newLang);
+      setPracticeLang(newLang);
+      toast.success("Practice language updated successfully!");
+    } catch (error) {
+      console.error("Failed to update practice language:", error);
+      toast.error("Failed to update practice language. Please try again.");
+      // Don't update local state if the database update failed
+    } finally {
+      setIsUpdatingPracticeLang(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 border-purple-200 dark:border-purple-800">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 border-purple-200 dark:border-purple-800 [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <span>Settings</span>
+            <span>{t.title}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -171,14 +199,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Account Information
+                {t.accountInfo.title}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label>Email Address</Label>
+                <Label>{t.accountInfo.emailLabel}</Label>
                 <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-md">
-                  {user?.email || "Loading..."}
+                  {user?.email || t.accountInfo.loading}
                 </div>
               </div>
             </CardContent>
@@ -189,22 +217,22 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="h-5 w-5" />
-                Change Password
+                {t.changePassword.title}
               </CardTitle>
               <CardDescription>
-                Update your password to keep your account secure
+                {t.changePassword.description}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
+                <Label htmlFor="currentPassword">{t.changePassword.currentPassword}</Label>
                 <div className="relative">
                   <Input
                     id="currentPassword"
                     type={showCurrentPassword ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
+                    placeholder={t.changePassword.currentPasswordPlaceholder}
                   />
                   <Button
                     type="button"
@@ -219,14 +247,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
+                <Label htmlFor="newPassword">{t.changePassword.newPassword}</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
                     type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
+                    placeholder={t.changePassword.newPasswordPlaceholder}
                   />
                   <Button
                     type="button"
@@ -241,14 +269,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Label htmlFor="confirmPassword">{t.changePassword.confirmPassword}</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
+                    placeholder={t.changePassword.confirmPasswordPlaceholder}
                   />
                   <Button
                     type="button"
@@ -267,7 +295,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 disabled={isChangingPassword}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
               >
-                {isChangingPassword ? "Changing Password..." : "Change Password"}
+                {isChangingPassword ? t.changePassword.changingButton : t.changePassword.changeButton}
               </Button>
             </CardContent>
           </Card>
@@ -277,18 +305,18 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5" />
-                Appearance
+                {t.appearance.title}
               </CardTitle>
               <CardDescription>
-                Choose between light and dark mode
+                {t.appearance.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Dark Mode</Label>
+                  <Label>{t.appearance.darkMode}</Label>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Toggle between light and dark theme
+                    {t.appearance.toggleDescription}
                   </p>
                 </div>
                 <Switch
@@ -304,26 +332,23 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="h-5 w-5" />
-                Language Preferences
+                {t.languagePreferences.title}
               </CardTitle>
               <CardDescription>
-                Set your preferred interface language
+                {t.languagePreferences.description}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Interface Language</Label>
+                <Label>{t.languagePreferences.interfaceLanguage}</Label>
                 <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select language" />
+                    <SelectValue placeholder={t.languagePreferences.selectLanguage} />
                   </SelectTrigger>
                   <SelectContent>
                     {languageOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        <div className="flex items-center gap-2">
-                          <span>{option.flag}</span>
-                          <span>{option.label}</span>
-                        </div>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -333,14 +358,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <div className="flex items-center gap-2">
                 <Button 
                   onClick={saveLanguagePreference}
-                  disabled={isSavingLanguage || selectedLanguage === language}
+                  disabled={isSavingLanguage || selectedLanguage === language || userLoading}
                   className="bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
                 >
-                  {isSavingLanguage ? "Saving..." : "Save Language Preference"}
+                  {isSavingLanguage ? t.languagePreferences.savingButton : userLoading ? t.languagePreferences.loadingButton : t.languagePreferences.saveButton}
                 </Button>
                 {selectedLanguage !== language && (
                   <span className="text-sm text-orange-600 dark:text-orange-400">
-                    Unsaved changes
+                    {t.languagePreferences.unsavedChanges}
                   </span>
                 )}
               </div>
@@ -352,18 +377,22 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Languages className="h-5 w-5" />
-                Practice Language
+                {t.practiceLanguageSection.title}
               </CardTitle>
               <CardDescription>
-                Choose the language you want to practice and learn
+                {t.practiceLanguageSection.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label>Practice Language</Label>
-                <Select value={practiceLang} onValueChange={handlePracticeLanguageChange}>
+                <Label>{t.practiceLanguageSection.title}</Label>
+                <Select 
+                  value={practiceLang} 
+                  onValueChange={handlePracticeLanguageChange}
+                  disabled={isUpdatingPracticeLang}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select practice language" />
+                    <SelectValue placeholder={t.practiceLanguageSection.selectPracticeLanguage} />
                   </SelectTrigger>
                   <SelectContent>
                     {practiceLanguageOptions.map((option) => (
@@ -373,6 +402,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {isUpdatingPracticeLang && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t.practiceLanguageSection.updating}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -384,7 +418,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             variant="outline"
             className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-900/50"
           >
-            Close
+            {t.close}
           </Button>
         </div>
       </DialogContent>

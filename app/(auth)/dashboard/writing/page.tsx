@@ -54,38 +54,20 @@ function useSetLanguageFromURL() {
       // Extracts user's information.
       const user = session.user;
       
-      // Inserts user's preferences into Supabase table.
-      const { error: insertError } = await supabase
+      // Upsert user's preferences into Supabase table.
+      const { error: upsertError } = await supabase
         .from("user_preferences")
-        .insert({
+        .upsert({
           uid: user.id,
-          email: user.email,
           preferred_lang: language,
-        })
-        .select();
-      
-      // If row already exists, update it.
-      if (insertError) {
-        if (insertError.code === "23505" || insertError.message.includes("duplicate key")) {
-          console.warn("Insert failed: row exists. Updating instead.");
+        }, {
+          onConflict: 'uid'
+        });
 
-          const { error: updateError } = await supabase
-            .from("user_preferences")
-            .update({
-              preferred_lang: language,
-            })
-            .eq("uid", user.id);
-
-          if (updateError) {
-            console.error("User preferences update failed:", updateError.message);
-          } else {
-            console.log("User preferences updated successfully!");
-          }
-        } else {
-          console.error("User preferences insert failed:", insertError.message);
-        }
+      if (upsertError) {
+        console.error("User preferences upsert failed:", upsertError.message);
       } else {
-        console.log("User preferences inserted successfully!");
+        console.log("User preferences updated successfully!");
       }
     };
     // Runs when language changes
