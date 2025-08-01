@@ -13,6 +13,7 @@ import { Navbar } from "@/components/Navbar";
 import {SupportChat} from "@/components/support-chat";
 import storyGenerator from "@/lang/Story-Generator/story-generator";
 import {Input} from "@/components/ui/input"
+import Footer from "@/components/Footer";
 import {toast} from "sonner"
 import {ScrollToTop} from "@/components/scroll-to-top"
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
@@ -233,9 +234,10 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
+    <>
       <Navbar isAuthenticated={isAuthenticated} />
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
+        <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto space-y-8">
           {/* Welcome Section */}
           <section>
@@ -936,12 +938,10 @@ function DashboardPage() {
 
           <SupportChat />
         </div>
+        </div>
       </main>
-
-      <footer className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40 text-center text-sm text-slate-500 dark:text-slate-400">
-        <p>{translated.footerText}</p>
-      </footer>
-    </div>
+      <Footer />
+    </>
   );
 }
 

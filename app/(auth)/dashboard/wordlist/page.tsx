@@ -7,6 +7,7 @@ import { Plus, Trash2} from 'lucide-react'
 import {Navbar3} from "@/components/dashboard/navbar3"
 import { useLanguage } from "@/lang/LanguageContext";
 import wordLists from "@/lang/Dashboard/wordLists";
+import Footer from "@/components/Footer";
 
 interface Word {
   id: string;
@@ -101,13 +102,7 @@ export default function WordListPage() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-purple-100 py-4 dark:bg-slate-800 dark:border-purple-900">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center text-sm text-slate-500 dark:text-slate-400">
-            {translated.footerText}
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

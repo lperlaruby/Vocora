@@ -13,7 +13,7 @@ export default function HomePage() {
   const { language } = useLanguage(); // Get the current language from context
   const translated = homeTranslations[language as keyof typeof homeTranslations];
   return (
-    <div className="min-h-screen bg-white">
+    <>
       <Navbar/>
       <main className="flex-1 flex items-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-8 md:py-12">
@@ -119,6 +119,6 @@ export default function HomePage() {
         </div>
       </main>
       <Footer/>
-    </div>
+    </>
   );
 }

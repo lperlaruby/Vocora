@@ -13,6 +13,7 @@ import { useLanguage } from "@/lang/LanguageContext"; // Import the useLanguage 
 import signupTranslations from "@/lang/signup"; // Import the signup translations
 import { FcGoogle } from "react-icons/fc"
 import Link from "next/link"
+import Footer from "@/components/Footer";
 import { motion } from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -222,7 +223,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Navbar />
       <main className="flex-1 flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
         <div className="container mx-auto px-4 py-8 md:py-12">
@@ -276,14 +277,7 @@ export default function SignUpPage() {
           </motion.div>
         </div>
       </main>
-
-      <footer className="bg-white border-t border-purple-100 py-4 dark:bg-slate-800 dark:border-purple-900">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center text-sm text-slate-500 dark:text-slate-400">
-            {signupTranslations[language].footerText}
-          </div>
-        </div>
-      </footer>
-    </div>
-  )
+      <Footer />
+    </>
+  );
 }

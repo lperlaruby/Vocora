@@ -52,7 +52,7 @@ export function Navbar({
 
   // Auth links for landing page
   const authLinks = [
-    { href: "/login", label: "Log In" },
+    { href: "/login", label: "Sign In" },
     { href: "/signup", label: "Sign Up" },
   ];
 

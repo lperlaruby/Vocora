@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="color-scheme" content="light dark" />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={`${inter.className} min-h-screen flex flex-col`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -25,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           disableTransitionOnChange
         >
           <LanguageProvider>
-            {children}
+            <div className="flex flex-col min-h-screen">
+              {children}
+            </div>
           </LanguageProvider>
         </ThemeProvider>
       </body>

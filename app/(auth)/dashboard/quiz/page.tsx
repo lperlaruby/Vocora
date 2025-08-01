@@ -8,15 +8,17 @@ import { motion } from "framer-motion"
 import {Navbar3} from "@/components/dashboard/navbar3"
 import { useLanguage } from "@/lang/LanguageContext";
 import underConstruction from "@/lang/Dashboard/underConstruction";
+import Footer from "@/components/Footer";
 
 export default function QuizPage() {
   const { language} = useLanguage();
   const translated = underConstruction[language];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
+    <>
       <Navbar3/>
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
+        <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <Link
@@ -53,15 +55,9 @@ export default function QuizPage() {
             </Card>
           </motion.div>
         </div>
-      </main>
-
-      <footer className="bg-white border-t border-purple-100 py-4 dark:bg-slate-800 dark:border-purple-900">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center text-sm text-slate-500 dark:text-slate-400">
-            {translated.footerText}
-          </div>
         </div>
-      </footer>
-    </div>
+      </main>
+      <Footer />
+    </>
   )
 }
