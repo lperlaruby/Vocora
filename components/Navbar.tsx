@@ -8,8 +8,7 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import dashBoardTranslations from "@/lang/Dashboard";
-import { LogOut, User, Settings, Sparkles, X, Globe } from "lucide-react"; // Remove Menu here
-import { Menu } from "lucide-react"; // Or, if you want, just import Menu here and remove from above
+import { LogOut, User, Settings, Sparkles, X, Globe, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SettingsModal } from "@/components/SettingsModal";
 

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
-import { Readable } from "stream";
 
 // Initializes OpenAI client from the API key
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

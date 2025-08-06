@@ -1,7 +1,5 @@
 "use client";
 
-import { sign } from "crypto";
-
 // lang/login_tr.ts
 
 const loginTranslations = {

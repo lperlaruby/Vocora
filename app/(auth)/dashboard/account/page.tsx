@@ -14,7 +14,7 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
-      <Navbar2/>
+      <Navbar isAuthenticated={true} showAccount={true} />
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <Card className="border-purple-100 dark:border-purple-800 dark:bg-slate-800">

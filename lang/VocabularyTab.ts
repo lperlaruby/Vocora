@@ -1,7 +1,5 @@
 "use client";
 
-import { use } from "chai";
-
 // lang/VocabularyTab.ts
 
 const vocabTabTranslations = {

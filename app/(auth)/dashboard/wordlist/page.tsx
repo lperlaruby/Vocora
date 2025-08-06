@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { Plus, Trash2} from 'lucide-react'
-import {Navbar3} from "@/components/dashboard/navbar3"
+import { Navbar } from "@/components/Navbar"
 import { useLanguage } from "@/lang/LanguageContext";
 import wordLists from "@/lang/Dashboard/wordLists";
 import Footer from "@/components/Footer";
@@ -23,7 +23,7 @@ export default function WordListPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar3/>
+      <Navbar isAuthenticated={true} showDashboard={true} />
       <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-6 md:py-8">
           <motion.div

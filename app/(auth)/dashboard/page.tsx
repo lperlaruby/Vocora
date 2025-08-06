@@ -24,7 +24,6 @@ import {useAudio} from "@/hooks/story-generator/useAudio";
 import {useHoverWord} from "@/hooks/story-generator/useHoverDefinitions";
 import ReactMarkdown from "react-markdown";
 import Translations from "@/lang/Dashboard/writing";
-// import {useSetLanguageFromURL} from "@/hooks/useSetLanguageFromURL"; // Removed to fix language settings conflicts
 import {useSaveStory} from "@/hooks/story-generator/useSaveStory";
 import {useUserPreferences} from "@/hooks/account/useUserPreferences";
 import {useWritingFeedback} from "@/hooks/writing/useWritingFeedback";
@@ -34,16 +33,7 @@ import { updateDailyStreak } from "../../../hooks/account/useUpdateDailyStreak";
 import { useDailyStreak } from "../../../hooks/account/useDailyStreak";
 import { useUser } from "@/hooks/account/useUser";
 
-async function getUserId() {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id;
-}
-
 function DashboardPage() {
-  // Remove the conflicting useSetLanguageFromURL hook
-  // const languageReady = useSetLanguageFromURL();
-  // Force languageReady to be true for now
-  const actualLanguageReady = true; // Add this line
   
   const {language, setLanguage} = useLanguage();
   const router = useRouter();
@@ -227,11 +217,6 @@ function DashboardPage() {
       updateDailyStreak(userId);
     }
   }, [userId]);
-
-  // Use the forced value instead of the hook value
-  if (!actualLanguageReady) {
-    return null;
-  }
 
   return (
     <>
