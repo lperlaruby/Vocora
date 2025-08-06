@@ -4,7 +4,7 @@ import { Construction } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import {Navbar2} from "@/components/dashboard/navbar2"
+import { Navbar } from "@/components/Navbar"
 import { useLanguage } from "@/lang/LanguageContext";
 import underConstruction from "@/lang/Dashboard/underConstruction";
 
