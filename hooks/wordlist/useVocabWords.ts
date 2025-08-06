@@ -9,14 +9,24 @@ export function useVocabWords(language: string) {
       const { data: { user } } = await supabase.auth.getUser();
       const sharedUserId = process.env.NEXT_PUBLIC_SHARED_USER_ID;
 
+      // Only include valid UIDs in the query
+      const uids = [sharedUserId, user?.id].filter(Boolean);
+      
+      if (uids.length === 0) {
+        console.warn("No valid UIDs for vocab words query");
+        return;
+      }
+
       const { data: wordsData, error } = await supabase
         .from("vocab_words")
         .select("word")
-        .in("uid", [sharedUserId, user?.id])
+        .in("uid", uids)
         .eq("language", language);
 
       if (!error && wordsData) {
         setWords(Array.from(new Set(wordsData.map(row => row.word))));
+      } else if (error) {
+        console.error("Error fetching vocab words:", error);
       }
     };
     fetchWords();

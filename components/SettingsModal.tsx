@@ -42,11 +42,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   
   // State for practice language
   const [practiceLang, setPracticeLang] = useState<"en" | "es" | "zh">("en");
+  const [originalPracticeLang, setOriginalPracticeLang] = useState<"en" | "es" | "zh">("en");
   const [isUpdatingPracticeLang, setIsUpdatingPracticeLang] = useState(false);
   
   // Use useCallback to prevent unnecessary re-renders of useUserPreferences
   const setPracticeLangCallback = useCallback((val: "en" | "es" | "zh") => {
     setPracticeLang(val);
+    setOriginalPracticeLang(val);
   }, []);
   
   const { updatePracticeLang, fetchUserData } = useUserPreferences(setPracticeLangCallback);
@@ -54,6 +56,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // State for language preferences with save button
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "es" | "zh">("en");
   const [isSavingLanguage, setIsSavingLanguage] = useState(false);
+  
+  // State for combined save functionality
+  const [isSavingAllSettings, setIsSavingAllSettings] = useState(false);
   
   // Language options using translations
   const languageOptions = [
@@ -167,22 +172,68 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
-  // Handle practice language change
-  const handlePracticeLanguageChange = async (newLang: "en" | "es" | "zh") => {
-    setIsUpdatingPracticeLang(true);
+  // Handle practice language change (just update local state, don't save immediately)
+  const handlePracticeLanguageChange = (newLang: "en" | "es" | "zh") => {
+    setPracticeLang(newLang);
+  };
+
+  // Combined save function for both interface and practice language
+  const saveAllSettings = async () => {
+    if (userLoading) {
+      toast.error("Please wait for authentication to complete");
+      return;
+    }
+
+    if (!user?.id) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    setIsSavingAllSettings(true);
     
     try {
-      await updatePracticeLang(newLang);
-      setPracticeLang(newLang);
-      toast.success("Practice language updated successfully!");
+      // Save interface language preference
+      const { error: langError } = await supabase
+        .from("user_preferences")
+        .upsert({
+          uid: user.id,
+          preferred_lang: selectedLanguage
+        }, {
+          onConflict: 'uid'
+        });
+
+      if (langError) {
+        console.error("Error saving language preference:", langError);
+        toast.error("Failed to save language preference");
+        return;
+      }
+
+      // Save practice language preference
+      try {
+        await updatePracticeLang(practiceLang);
+        setOriginalPracticeLang(practiceLang);
+      } catch (error) {
+        console.error("Failed to update practice language:", error);
+        toast.error("Failed to update practice language");
+        return;
+      }
+
+      // Update language immediately and reload from database for consistency
+      setLanguage(selectedLanguage);
+      console.log("Language updated immediately to:", selectedLanguage);
+      await reloadFromDatabase();
+      toast.success("Settings saved successfully!");
+      
     } catch (error) {
-      console.error("Failed to update practice language:", error);
-      toast.error("Failed to update practice language. Please try again.");
-      // Don't update local state if the database update failed
+      console.error("Error saving settings:", error);
+      toast.error("An error occurred while saving settings");
     } finally {
-      setIsUpdatingPracticeLang(false);
+      setIsSavingAllSettings(false);
     }
   };
+
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = selectedLanguage !== language || practiceLang !== originalPracticeLang;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -354,21 +405,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <Button 
-                  onClick={saveLanguagePreference}
-                  disabled={isSavingLanguage || selectedLanguage === language || userLoading}
-                  className="bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
-                >
-                  {isSavingLanguage ? t.languagePreferences.savingButton : userLoading ? t.languagePreferences.loadingButton : t.languagePreferences.saveButton}
-                </Button>
-                {selectedLanguage !== language && (
-                  <span className="text-sm text-orange-600 dark:text-orange-400">
-                    {t.languagePreferences.unsavedChanges}
-                  </span>
-                )}
-              </div>
             </CardContent>
           </Card>
 
@@ -389,7 +425,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <Select 
                   value={practiceLang} 
                   onValueChange={handlePracticeLanguageChange}
-                  disabled={isUpdatingPracticeLang}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={t.practiceLanguageSection.selectPracticeLanguage} />
@@ -402,24 +437,33 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                {isUpdatingPracticeLang && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t.practiceLanguageSection.updating}
-                  </p>
-                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex justify-end pt-4">
-          <Button 
-            onClick={onClose} 
-            variant="outline"
-            className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-900/50"
-          >
-            {t.close}
-          </Button>
+        <div className="flex items-center justify-between pt-4">
+          {hasUnsavedChanges && (
+            <span className="text-sm text-orange-600 dark:text-orange-400">
+              {t.saveAllSettings.unsavedChanges}
+            </span>
+          )}
+          <div className="flex gap-3 ml-auto">
+            <Button 
+              onClick={saveAllSettings}
+              disabled={isSavingAllSettings || !hasUnsavedChanges || userLoading}
+              className="bg-purple-600 hover:bg-purple-700 text-white dark:bg-purple-700 dark:hover:bg-purple-800"
+            >
+              {isSavingAllSettings ? t.saveAllSettings.savingButton : t.saveAllSettings.saveButton}
+            </Button>
+            <Button 
+              onClick={onClose} 
+              variant="outline"
+              className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-900/50"
+            >
+              {t.close}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

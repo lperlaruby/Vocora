@@ -49,7 +49,7 @@ export function useSetLanguageFromURL() {
         .from("user_preferences")
         .select("preferred_lang")
         .eq("uid", user.id)
-        .single();
+        .maybeSingle();
 
       // Only insert if no preferences exist
       if (!existingData) {

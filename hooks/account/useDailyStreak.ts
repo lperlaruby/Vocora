@@ -14,7 +14,7 @@ export function useDailyStreak(userId: string | null | undefined) {
       const { data, error } = await supabase
         .from("user_streaks")
         .select("streak_count")
-        .eq("user_id", userId)
+        .eq("uid", userId) // Changed from user_id to uid
         .single();
       if (!error && data) setStreak(data.streak_count);
       else setStreak(0);

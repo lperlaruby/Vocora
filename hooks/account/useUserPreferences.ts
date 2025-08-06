@@ -17,7 +17,7 @@ export function useUserPreferences(setPracticeLang: (val: "en" | "es" | "zh") =>
         .from("user_preferences")
         .select("practice_lang")
         .eq("uid", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user preferences:", error);

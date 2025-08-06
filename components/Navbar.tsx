@@ -133,7 +133,6 @@ export function Navbar({
                   <SelectValue>
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4" />
-                      <span>{languageOptions.find(opt => opt.value === language)?.flag}</span>
                       <span className="hidden sm:inline">{languageOptions.find(opt => opt.value === language)?.label}</span>
                     </div>
                   </SelectValue>
@@ -142,7 +141,6 @@ export function Navbar({
                   {languageOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       <div className="flex items-center gap-2">
-                        <span>{option.flag}</span>
                         <span>{option.label}</span>
                       </div>
                     </SelectItem>
@@ -171,7 +169,7 @@ export function Navbar({
               <SelectTrigger className="w-[60px] bg-white/20 border-white/30 text-white">
                 <SelectValue>
                   <div className="flex items-center gap-1">
-                    <span>{languageOptions.find(opt => opt.value === language)?.flag}</span>
+                    <Globe className="h-4 w-4" />
                   </div>
                 </SelectValue>
               </SelectTrigger>
@@ -179,7 +177,6 @@ export function Navbar({
                 {languageOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center gap-2">
-                      <span>{option.flag}</span>
                       <span>{option.label}</span>
                     </div>
                   </SelectItem>

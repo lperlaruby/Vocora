@@ -50,7 +50,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           .from("user_preferences")
           .select("preferred_lang")
           .eq("uid", session.user.id)
-          .single();
+          .maybeSingle();
           
         if (data?.preferred_lang) {
           setLanguage(data.preferred_lang as Language);

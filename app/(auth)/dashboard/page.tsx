@@ -98,7 +98,7 @@ function DashboardPage() {
           .from("user_preferences")
           .select("preferred_lang, practice_lang")
           .eq("uid", session.user.id)
-          .single();
+          .maybeSingle();
 
         console.log("Language preferences check:", { data, error });
 

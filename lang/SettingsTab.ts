@@ -53,6 +53,11 @@ const settingsTranslations = {
         description: "Choose the language you want to practice and learn",
         selectPracticeLanguage: "Select practice language",
         updating: "Updating practice language..."
+      },
+      saveAllSettings: {
+        saveButton: "Save",
+        savingButton: "Saving...",
+        unsavedChanges: "You have unsaved changes"
       }
     },
     es: {
@@ -105,6 +110,11 @@ const settingsTranslations = {
         description: "Elige el idioma que quieres practicar y aprender",
         selectPracticeLanguage: "Seleccionar idioma de práctica",
         updating: "Actualizando idioma de práctica..."
+      },
+      saveAllSettings: {
+        saveButton: "Guardar",
+        savingButton: "Guardando...",
+        unsavedChanges: "Tienes cambios no guardados"
       }
     },
     zh: {
@@ -157,6 +167,11 @@ const settingsTranslations = {
         description: "选择您想要练习和学习的语言",
         selectPracticeLanguage: "选择练习语言",
         updating: "更新练习语言中..."
+      },
+      saveAllSettings: {
+        saveButton: "保存",
+        savingButton: "保存中...",
+        unsavedChanges: "您有未保存的更改"
       }
     },
   } as const;
