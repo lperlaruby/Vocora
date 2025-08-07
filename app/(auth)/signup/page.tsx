@@ -202,7 +202,9 @@ export default function SignUpPage() {
     
     const googleLanguage = language === "es" ? "es-419" : language;
     // Change this line to redirect to language-setup instead of dashboard
-    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent('/language-setup')}`;
+    // Use current origin if NEXT_PUBLIC_NEXTAUTH_URL is not set
+    const baseUrl = process.env.NEXT_PUBLIC_NEXTAUTH_URL || window.location.origin;
+    const redirectURL = `${baseUrl}/auth/callback?next=${encodeURIComponent('/language-setup')}`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",

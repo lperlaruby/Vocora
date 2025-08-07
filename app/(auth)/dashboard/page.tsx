@@ -66,20 +66,53 @@ function DashboardPage() {
 
   // Check if user is authenticated
   useEffect(() => {
-    // Only use onAuthStateChange, remove getInitialSession to avoid race conditions
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setAuthLoading(false);
+    let initialCheckDone = false;
+    
+    // First, get the current session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Dashboard: Initial session check:', !!session);
         
         if (session) {
           setIsAuthenticated(true);
+          setAuthLoading(false);
+          initialCheckDone = true;
         } else {
+          // Only redirect if we're sure there's no session and initial check is done
           setIsAuthenticated(false);
-          // Always redirect to login when no session
+          setAuthLoading(false);
+          initialCheckDone = true;
+          console.log('Dashboard: No session found, redirecting to login');
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error('Dashboard: Error getting session:', error);
+        setAuthLoading(false);
+        initialCheckDone = true;
+      }
+    };
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Dashboard: Auth state change:', event, !!session);
+        
+        if (session) {
+          setIsAuthenticated(true);
+          setAuthLoading(false);
+        } else if (initialCheckDone) {
+          // Only redirect if initial check is done to avoid race conditions
+          setIsAuthenticated(false);
+          setAuthLoading(false);
+          console.log('Dashboard: Session lost, redirecting to login');
           router.push("/login");
         }
       }
     );
+
+    // Perform initial session check
+    getInitialSession();
 
     return () => subscription.unsubscribe();
   }, [router]);
@@ -239,6 +272,19 @@ function DashboardPage() {
   }
 
   // Don't render dashboard if not authenticated (let useEffect handle redirect)
+  // Show loading spinner while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not authenticated (will redirect)
   if (!isAuthenticated) {
     return null;
   }

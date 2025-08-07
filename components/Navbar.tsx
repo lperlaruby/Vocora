@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useLanguage } from "@/lang/LanguageContext"; // Only once!
 import navbarTranslations from "@/lang/Navbar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import dashBoardTranslations from "@/lang/Dashboard";
 import { LogOut, User, Settings, Sparkles, X, Globe, Menu } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SettingsModal } from "@/components/SettingsModal";
+import { useUser } from "@/hooks/account/useUser";
+import { supabase } from "@/lib/supabase";
 
 type NavbarProps = {
   isAuthenticated?: boolean;
@@ -19,11 +21,18 @@ type NavbarProps = {
   showAccount?: boolean;
   showSettings?: boolean;
   showLogout?: boolean;
-  customLinks?: Array<{ href: string; label: string; icon?: React.ReactNode }>;
+  customLinks?: Array<{ href: string; label: string; icon?: React.ReactNode; onClick?: () => void }>;
+};
+
+type NavLink = {
+  href: string;
+  label: string;
+  icon?: React.ReactNode;
+  onClick?: () => void;
 };
 
 export function Navbar({
-  isAuthenticated = false,
+  isAuthenticated: propIsAuthenticated,
   showDashboard,
   showProgress,
   showAccount,
@@ -36,6 +45,11 @@ export function Navbar({
   const { language, setLanguage } = useLanguage();
   const translated = dashBoardTranslations[language];
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useUser();
+  
+  // Use prop if provided, otherwise use hook
+  const isAuthenticated = propIsAuthenticated !== undefined ? propIsAuthenticated : !!user;
   
   // Check if we're on a dashboard page
   const isDashboardPage = pathname?.startsWith('/dashboard');
@@ -54,6 +68,23 @@ export function Navbar({
     { href: "/login", label: "Sign In" },
     { href: "/signup", label: "Sign Up" },
   ];
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      // Clear any cached auth data
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Force clear even if logout fails
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/");
+    }
+  };
 
   // Dashboard links for authenticated users
   const navLinks = [
@@ -78,12 +109,28 @@ export function Navbar({
       icon: <Settings className="h-4 w-4" />,
     },
     ...customLinks,
-    showLogout && {
-      href: "/",
+    // Only show logout when authenticated and showLogout is true
+    isAuthenticated && showLogout && {
+      href: "#",
       label: translated.navBar.logout,
       icon: <LogOut className="h-4 w-4" />,
+      onClick: handleLogout,
     },
   ].filter(Boolean);
+
+  // Debug logging (can be removed after testing)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Navbar Debug:', { 
+      propIsAuthenticated, 
+      user: !!user, 
+      isAuthenticated, 
+      pathname,
+      showLogout,
+      navLinksCount: navLinks.length,
+      userLoading: loading,
+      userEmail: user?.email || 'no email'
+    });
+  }
 
   return (
     <header className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 to-violet-500 text-white">
@@ -113,16 +160,29 @@ export function Navbar({
               ))
             : isAuthenticated && navLinks.map((link, idx) => 
                 link && (
-                  <Link key={idx} href={link.href}>
+                  link.onClick ? (
                     <Button
+                      key={idx}
                       variant="outline"
                       size="sm"
                       className="border-white/30 bg-white/20 text-white hover:bg-white/30 flex items-center gap-1"
+                      onClick={link.onClick}
                     >
                       {link.icon}
                       <span>{link.label}</span>
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link key={idx} href={link.href}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-white/30 bg-white/20 text-white hover:bg-white/30 flex items-center gap-1"
+                      >
+                        {link.icon}
+                        <span>{link.label}</span>
+                      </Button>
+                    </Link>
+                  )
                 )
               )}
           <div className="border-l border-white/20 pl-4 ml-2 flex items-center gap-3">
@@ -207,14 +267,31 @@ export function Navbar({
       {/* Mobile Nav */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-purple-700 py-3 px-4 flex flex-col gap-3">
-          {navLinks.map((link, idx) => 
-            link && (
-              <Link key={idx} href={link.href} className="py-2 flex items-center gap-2 text-white">
-                {link.icon}
-                <span>{link.label}</span>
-              </Link>
-            )
-          )}
+          {!isAuthenticated && !isAuthPage
+            ? authLinks.map((link, idx) => (
+                <Link key={idx} href={link.href} className="py-2 flex items-center gap-2 text-white">
+                  <span>{link.label}</span>
+                </Link>
+              ))
+            : isAuthenticated && navLinks.map((link, idx) => 
+                link && (
+                  link.onClick ? (
+                    <button
+                      key={idx}
+                      onClick={link.onClick}
+                      className="py-2 flex items-center gap-2 text-white text-left"
+                    >
+                      {link.icon}
+                      <span>{link.label}</span>
+                    </button>
+                  ) : (
+                    <Link key={idx} href={link.href} className="py-2 flex items-center gap-2 text-white">
+                      {link.icon}
+                      <span>{link.label}</span>
+                    </Link>
+                  )
+                )
+              )}
         </div>
       )}
       

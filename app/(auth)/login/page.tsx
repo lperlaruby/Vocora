@@ -72,7 +72,24 @@ export default function LoginPage() {
       }
 
       console.log("Authentication successful.", loginData);
-      router.push(`/dashboard?lang=${language}`);
+      console.log("User session:", loginData.session);
+      console.log("User data:", loginData.user);
+      
+      // Test multiple redirect methods
+      console.log("Attempting redirect to dashboard...");
+      
+      // Method 1: Direct window.location (most reliable)
+      console.log("Using window.location redirect");
+      window.location.href = `/dashboard?lang=${language}`;
+      
+      // Fallback method
+      setTimeout(() => {
+        if (window.location.pathname === '/login') {
+          console.log("Fallback: Using router.push");
+          router.push(`/dashboard?lang=${language}`);
+        }
+      }, 500);
+      
       // For right now : 
       // router.push(`/success`);
     } catch (error) {
@@ -87,27 +104,52 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    const googleLang = language === "es" ? "es-419" : language;
-    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent(`/dashboard?lang=${language}`)}`;
-    // For right now: 
-    // const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/success`;
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: redirectURL,
-        queryParams: {
-          // Changes the Google OAuth login screen language
-          hl: googleLang,
-        },
-      },
+    console.log("Starting Google OAuth...");
+    console.log("Environment:", {
+      nextAuthUrl: process.env.NEXT_PUBLIC_NEXTAUTH_URL,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL
     });
 
-    if (error) {
-      console.error("Google OAuth Error:", error.message);
-      setError(error.message);
+    const googleLang = language === "es" ? "es-419" : language;
+    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent(`/dashboard?lang=${language}`)}`;
+    
+    console.log("Redirect URL:", redirectURL);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectURL,
+          queryParams: {
+            hl: googleLang,
+          },
+        },
+      });
+
+      console.log("OAuth response:", { data, error });
+
+      if (error) {
+        console.error("Google OAuth Error:", error);
+        setError(`OAuth Error: ${error.message}`);
+        setIsLoading(false);
+      } else {
+        console.log("OAuth URL generated:", data?.url);
+        console.log("Should redirect to Google now...");
+        
+        // Check if we're still on the same page after a few seconds
+        setTimeout(() => {
+          if (window.location.pathname === '/login') {
+            console.error("Still on login page - OAuth redirect may have failed");
+            setError("OAuth redirect failed - check console for details");
+            setIsLoading(false);
+          }
+        }, 2000);
+      }
+    } catch (err) {
+      console.error("OAuth attempt failed:", err);
+      setError(`OAuth failed: ${err}`);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   return (

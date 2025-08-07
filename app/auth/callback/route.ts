@@ -1,23 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
+  const error = searchParams.get('error')
+  const errorDescription = searchParams.get('error_description')
   const next = searchParams.get('next') ?? '/dashboard'
 
-  console.log('OAuth callback received:', { code: !!code, next })
+  console.log('OAuth callback received:', { 
+    error, 
+    errorDescription, 
+    next,
+    fullUrl: request.url,
+    allParams: Object.fromEntries(searchParams.entries())
+  })
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (!error) {
-      console.log('OAuth exchange successful, redirecting to:', next)
-      return NextResponse.redirect(`${origin}${next}`)
-    } else {
-      console.error('OAuth exchange failed:', error)
-    }
+  // If there's an error parameter, show it
+  if (error && error !== 'no_code') {
+    console.error('OAuth error:', { error, errorDescription })
+    return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${error}&description=${encodeURIComponent(errorDescription || '')}`)
   }
 
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  // For implicit flow (token in URL hash), we need to redirect to a page that can handle the hash
+  console.log('Redirecting to handle implicit OAuth flow...')
+  
+  // Create the redirect page that will handle the token from URL hash
+  return NextResponse.redirect(`${origin}/auth/callback-handler?next=${encodeURIComponent(next)}`)
 }
