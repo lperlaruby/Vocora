@@ -138,7 +138,41 @@ header.sticky {
   border-color: rgba(167, 139, 250, 0.2);
 }
 
-/* Sticky Footer Layout */
+/* Viewport-Constrained Layout */
+.viewport-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.viewport-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollable Container */
+.scrollable-container {
+  max-height: calc(100vh - 140px); /* Account for navbar + footer */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Dashboard specific constraints */
+.dashboard-main {
+  height: calc(100vh - 80px); /* Account for navbar height */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Footer - no background override */
+footer {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Sticky Footer Layout (legacy support) */
 .sticky-footer-layout {
   min-height: 100vh;
   display: flex;

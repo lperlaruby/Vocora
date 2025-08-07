@@ -13,10 +13,11 @@ export default function AccountPage() {
   const translated = underConstruction[language];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
+    <div className="h-full flex flex-col bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
       <Navbar isAuthenticated={true} showAccount={true} />
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
+      <main className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-4 py-8 h-full flex items-center justify-center">
+          <div className="max-w-2xl mx-auto">
           <Card className="border-purple-100 dark:border-purple-800 dark:bg-slate-800">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
@@ -42,6 +43,7 @@ export default function AccountPage() {
               </Link>
             </CardContent>
           </Card>
+          </div>
         </div>
       </main>
     </div>

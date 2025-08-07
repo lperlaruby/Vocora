@@ -111,42 +111,45 @@ export default function SentencePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background">
     <Navbar/>
 
-    <Card className="border-purple-100 shadow-lg dark:border-purple-800 dark:bg-slate-800">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl flex items-center gap-2">
-            <MessageSquare className="h-7 w-7 text-purple-600 dark:text-purple-400" />
-            {Translations[language].title}
-          </CardTitle>
-        </div>
-      </CardHeader>
+    <main className="flex-1 overflow-y-auto bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+      <div className="container mx-auto px-4 py-4 h-full">
+        <Card className="border-purple-100 shadow-lg dark:border-purple-800 dark:bg-slate-800 max-w-2xl mx-auto">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <MessageSquare className="h-7 w-7 text-purple-600 dark:text-purple-400" />
+                {Translations[language].title}
+              </CardTitle>
+            </div>
+          </CardHeader>
 
-      <main className="flex-1 p-6 max-w-2xl mx-auto w-full flex flex-col items-center">
-        <h2 className="text-base font-normal mb-6 text-center">{Translations[language].subheading}</h2>
+          <CardContent className="p-6 flex flex-col items-center space-y-4">
+            <h2 className="text-base font-normal text-center">{Translations[language].subheading}</h2>
 
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={`${Translations[language].prompt} ${languageDisplayNames[language][practiceLang]}...`}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="mb-4"
-        />
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={`${Translations[language].prompt} ${languageDisplayNames[language][practiceLang]}...`}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              className="w-full"
+            />
 
-        <Button onClick={handleSend} disabled={loading}>
-          {loading ? "Checking..." : "Submit"}
-        </Button>
+            <Button onClick={handleSend} disabled={loading}>
+              {loading ? "Checking..." : "Submit"}
+            </Button>
 
-        {reply && (
-          <div className="mt-6 w-full bg-purple-100 text-purple-900 p-4 rounded-xl shadow prose dark:prose-invert dark:bg-purple-900/20 dark:text-purple-100">
-            <ReactMarkdown>{reply}</ReactMarkdown>
-          </div>
-        )}
-      </main>
-    
-    </Card>
+            {reply && (
+              <div className="w-full bg-purple-100 text-purple-900 p-4 rounded-xl shadow prose dark:prose-invert dark:bg-purple-900/20 dark:text-purple-100">
+                <ReactMarkdown>{reply}</ReactMarkdown>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </main>
     </div>
   );
 }

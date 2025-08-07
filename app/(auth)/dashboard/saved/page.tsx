@@ -17,8 +17,8 @@ export default function SavedItemsPage() {
   return (
     <>
       <Navbar isAuthenticated={true} showDashboard={true} />
-      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
-        <div className="container mx-auto px-4 py-8">
+      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white overflow-y-auto">
+        <div className="container mx-auto px-4 py-4">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <Link

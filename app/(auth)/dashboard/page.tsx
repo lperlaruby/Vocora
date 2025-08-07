@@ -292,15 +292,15 @@ function DashboardPage() {
   return (
     <>
       <Navbar isAuthenticated={isAuthenticated} />
-      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
-        <div className="container mx-auto px-4 py-8">
-        <div className="max-w-5xl mx-auto space-y-8">
+      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white overflow-y-auto">
+        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-5xl mx-auto space-y-4">
           {/* Welcome Section */}
           <section>
             <Card className="overflow-hidden border-purple-100 shadow-lg dark:border-purple-800 dark:bg-slate-800">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-r from-purple-600 to-violet-500 p-6 md:p-8 text-white">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="bg-gradient-to-r from-purple-600 to-violet-500 p-4 md:p-6 text-white">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                       <h2 className="text-2xl font-bold mb-2">{translated.greeting}</h2>
                       <p className="text-purple-100 text-lg">{translated.continue}</p>
@@ -316,7 +316,7 @@ function DashboardPage() {
                 </div>
 
                 <div className="border-t border-purple-200 dark:border-purple-800">
-                  <div className="bg-white dark:bg-slate-800 p-6">
+                  <div className="bg-white dark:bg-slate-800 p-4">
                     <div className="flex flex-wrap gap-2">
                       <Button 
                         size="sm" 

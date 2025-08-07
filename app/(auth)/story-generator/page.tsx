@@ -222,128 +222,133 @@ export default function SuccessPage() {
 
   };
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background">
       <Header/>
-      <main className="flex-1 flex justify-between p-6 max-w-6xl mx-auto w-full gap-8">
-        {/* Left-Aligned Content */}
-        <div className="flex flex-col items-start justify-center w-1/2 space-y-8">
-          <h2 className="text-lg font-semibold self-center w-full text-center">{translated.title}</h2>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto w-full p-4">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left-Aligned Content */}
+            <div className="flex flex-col items-start justify-start lg:w-1/2 space-y-4">
+              <h2 className="text-lg font-semibold self-center w-full text-center">{translated.title}</h2>
 
-          {/* Word Input Field */}
-          <div className="w-full max-w-2xl">
-            <Input
-              type="text"
-              placeholder={translated.typeWord}
-              className="w-full h-12 text-lg px-4 rounded-md"
-              value={newWord}
-              onChange={(e) => setNewWord(e.target.value)}
-            />
-          </div>
-
-          {/* Word Buttons */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              className="bg-purple-500 text-white hover:bg-purple-600"
-              onClick={handleAddWord}
-            >
-              {translated.add}
-            </Button>
-            {words.map((word, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData("text/plain", word);
-                }}
-                className={`text-lg ${
-                  selectedWords.has(word)
-                    ? "bg-purple-600 text-white hover:bg-purple-600 hover:text-white"
-                    : "hover:bg-purple-600 hover:text-white bg-white text-black"
-                }`}
-                onClick={() => toggleWord(word)}
-              >
-                {word}
-              </Button>
-            ))}
-          </div>
-
-          {/* Story Generation Section */}
-          <div className="w-full max-w-2xl mt-8">
-            <div className="flex gap-4 justify-center">
-              <Button variant="outline" className="mb-4 border-purple-500" onClick={handleGenerateStory}>
-              {translated.generate}
-              </Button>
-
-              {generatedStory && (
-                <Button variant="secondary" className="bg-purple-500 text-white hover:bg-purple-600" onClick={handleConvertToSpeech}>
-                {translated.reading}
-                </Button>
-              )}
-
-              
-              {audioSrc && (
-                <audio key={audioSrc} controls autoPlay className="mt-0">
-                <source src={audioSrc} type="audio/mpeg" />
-                {translated.audioError}
-              </audio>
-            )}
-            </div>
-
-            {/* Story Output */}
-            <div className="bg-gray-50 rounded-lg p-6 mt-4">
-              <p className="text-gray-600 relative text-2xl">
-                {splitIntoWords(generatedStory).map((word, index) => {
-                  const cleanedWord = cleanWord(word);
-
-                  return cleanedWord ? (
-                    <span
-                      key={index}
-                      className={`relative inline-block cursor-pointer hover:underline ${selectedWords.has(cleanedWord) ? 'bg-yellow-300' : ''}`}
-                      onMouseEnter={() => setHoveredWord({ word: cleanedWord, index })}
-                      onMouseLeave={() => setHoveredWord(null)}
-                    >
-                      {word}
-                      {hoveredWord && hoveredWord.word === cleanedWord && hoveredWord.index === index && definitions[cleanedWord] && (
-                        <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-gray-100 border border-gray-300 shadow-lg rounded-lg p-3 text-sm">
-                          <p className="font-bold text-black">{cleanedWord}</p>
-                          <p className="text-gray-500 italic">{definitions[cleanedWord]?.partOfSpeech || "noun"}</p>
-                          <p className="text-gray-700">{definitions[cleanedWord]?.definition || "No definition found."}</p>
-
-                          <button className="mt-2 w-full bg-purple-500 text-white py-1 px-2 rounded text-xs flex items-center justify-center hover:bg-purple-600" onClick={handleAddHoveredWord}>
-                            {translated.addToList}
-                          </button>
-
-                          <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-4 h-4 bg-gray-100 rotate-45 border border-gray-300"></div>
-                        </div>
-                      )}
-                    </span>
-                  ) : (
-                    word
-                  );
-                })}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right-Aligned Image Section */}
-        <div className="flex w-1/2 justify-center items-center">
-          {/* Loading Spinner Section */}
-          {loading ? (
-            <div className="mt-8 flex justify-center">
-              <div className="spinner-border animate-spin border-4 border-t-4 border-purple-500 rounded-full w-16 h-16"></div>
-            </div>
-          ) : (
-            // Displays the image once it's generated
-            imageUrl && (
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4"></h3>
-                <img src={imageUrl} alt="Generated Image" className="w-full max-w-2xl h-auto object-contain rounded-lg shadow-lg" />
+              {/* Word Input Field */}
+              <div className="w-full">
+                <Input
+                  type="text"
+                  placeholder={translated.typeWord}
+                  className="w-full h-12 text-lg px-4 rounded-md"
+                  value={newWord}
+                  onChange={(e) => setNewWord(e.target.value)}
+                />
               </div>
-            )
-          )}
+
+              {/* Word Buttons */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  className="bg-purple-500 text-white hover:bg-purple-600"
+                  onClick={handleAddWord}
+                >
+                  {translated.add}
+                </Button>
+                {words.map((word, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData("text/plain", word);
+                    }}
+                    className={`text-lg ${
+                      selectedWords.has(word)
+                        ? "bg-purple-600 text-white hover:bg-purple-600 hover:text-white"
+                        : "hover:bg-purple-600 hover:text-white bg-white text-black"
+                    }`}
+                    onClick={() => toggleWord(word)}
+                  >
+                    {word}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Story Generation Section */}
+              <div className="w-full">
+                <div className="flex gap-4 justify-center">
+                  <Button variant="outline" className="mb-4 border-purple-500" onClick={handleGenerateStory}>
+                  {translated.generate}
+                  </Button>
+
+                  {generatedStory && (
+                    <Button variant="secondary" className="bg-purple-500 text-white hover:bg-purple-600" onClick={handleConvertToSpeech}>
+                    {translated.reading}
+                    </Button>
+                  )}
+
+                  
+                  {audioSrc && (
+                    <audio key={audioSrc} controls autoPlay className="mt-0">
+                    <source src={audioSrc} type="audio/mpeg" />
+                    {translated.audioError}
+                  </audio>
+                )}
+                </div>
+
+                {/* Story Output */}
+                {generatedStory && (
+                  <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                    <p className="text-gray-600 relative text-xl">
+                      {splitIntoWords(generatedStory).map((word, index) => {
+                        const cleanedWord = cleanWord(word);
+
+                        return cleanedWord ? (
+                          <span
+                            key={index}
+                            className={`relative inline-block cursor-pointer hover:underline ${selectedWords.has(cleanedWord) ? 'bg-yellow-300' : ''}`}
+                            onMouseEnter={() => setHoveredWord({ word: cleanedWord, index })}
+                            onMouseLeave={() => setHoveredWord(null)}
+                          >
+                            {word}
+                            {hoveredWord && hoveredWord.word === cleanedWord && hoveredWord.index === index && definitions[cleanedWord] && (
+                              <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-gray-100 border border-gray-300 shadow-lg rounded-lg p-3 text-sm z-50">
+                                <p className="font-bold text-black">{cleanedWord}</p>
+                                <p className="text-gray-500 italic">{definitions[cleanedWord]?.partOfSpeech || "noun"}</p>
+                                <p className="text-gray-700">{definitions[cleanedWord]?.definition || "No definition found."}</p>
+
+                                <button className="mt-2 w-full bg-purple-500 text-white py-1 px-2 rounded text-xs flex items-center justify-center hover:bg-purple-600" onClick={handleAddHoveredWord}>
+                                  {translated.addToList}
+                                </button>
+
+                                <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-4 h-4 bg-gray-100 rotate-45 border border-gray-300"></div>
+                              </div>
+                            )}
+                          </span>
+                        ) : (
+                          word
+                        );
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right-Aligned Image Section */}
+            <div className="flex lg:w-1/2 justify-center items-start">
+              {/* Loading Spinner Section */}
+              {loading ? (
+                <div className="mt-8 flex justify-center">
+                  <div className="spinner-border animate-spin border-4 border-t-4 border-purple-500 rounded-full w-16 h-16"></div>
+                </div>
+              ) : (
+                // Displays the image once it's generated
+                imageUrl && (
+                  <div className="mt-8">
+                    <img src={imageUrl} alt="Generated Image" className="w-full max-w-md h-auto object-contain rounded-lg shadow-lg" />
+                  </div>
+                )
+              )}
+            </div>
+          </div>
         </div>
       </main>
     </div>
