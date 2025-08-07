@@ -62,18 +62,26 @@ function DashboardPage() {
 
   // Add authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Check if user is authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-      } else {
-        setIsAuthenticated(true);
+    // Only use onAuthStateChange, remove getInitialSession to avoid race conditions
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setAuthLoading(false);
+        
+        if (session) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          // Always redirect to login when no session
+          router.push("/login");
+        }
       }
-    };
-    checkAuth();
+    );
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   // Add this useEffect in the DashboardPage component, after the authentication check
@@ -217,6 +225,23 @@ function DashboardPage() {
       updateDailyStreak(userId);
     }
   }, [userId]);
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render dashboard if not authenticated (let useEffect handle redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <>

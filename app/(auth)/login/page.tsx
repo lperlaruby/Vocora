@@ -88,7 +88,7 @@ export default function LoginPage() {
     setError(null);
 
     const googleLang = language === "es" ? "es-419" : language;
-    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/dashboard?lang=${language}`;
+    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent(`/dashboard?lang=${language}`)}`;
     // For right now: 
     // const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/success`;
 
