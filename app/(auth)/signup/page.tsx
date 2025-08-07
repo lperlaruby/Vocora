@@ -26,9 +26,7 @@ function SignUpForm({
   const [showTooltip, setShowTooltip] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
-  // Add these new state variables for language preferences
-  const [interfaceLanguage, setInterfaceLanguage] = useState<"en" | "es" | "zh">("en");
-  const [practiceLanguage, setPracticeLanguage] = useState<"en" | "es" | "zh">("en");
+
 
   const PasswordReq = [
     (pw: string) => pw.length >= 6,
@@ -59,40 +57,7 @@ function SignUpForm({
           <Input id="email" name="email" type="email" required placeholder={signupTranslations[language].emailPlaceholder} className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900" />
         </div>
 
-        {/* Add the language preference sections here */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Interface Language */}
-          <div className="space-y-2">
-            <Label className="dark:text-slate-200">{signupTranslations[language].interfaceLanguageLabel}</Label>
-            <p className="text-sm text-slate-600 dark:text-slate-400">{signupTranslations[language].interfaceLanguageDescription}</p>
-            <Select value={interfaceLanguage} onValueChange={(value: "en" | "es" | "zh") => setInterfaceLanguage(value)}>
-              <SelectTrigger className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{signupTranslations[language].languageOptions.english}</SelectItem>
-                <SelectItem value="es">{signupTranslations[language].languageOptions.spanish}</SelectItem>
-                <SelectItem value="zh">{signupTranslations[language].languageOptions.chinese}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
-          {/* Practice Language */}
-          <div className="space-y-2">
-            <Label className="dark:text-slate-200">{signupTranslations[language].practiceLanguageLabel}</Label>
-            <p className="text-sm text-slate-600 dark:text-slate-400">{signupTranslations[language].practiceLanguageDescription}</p>
-            <Select value={practiceLanguage} onValueChange={(value: "en" | "es" | "zh") => setPracticeLanguage(value)}>
-              <SelectTrigger className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{signupTranslations[language].languageOptions.english}</SelectItem>
-                <SelectItem value="es">{signupTranslations[language].languageOptions.spanish}</SelectItem>
-                <SelectItem value="zh">{signupTranslations[language].languageOptions.chinese}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
         {/* Password field - existing code */}
         <div className="space-y-2 relative w-full">
@@ -125,9 +90,7 @@ function SignUpForm({
           </div>
         </div>
 
-        {/* Add hidden inputs to pass language preferences to form submission */}
-        <input type="hidden" name="interfaceLanguage" value={interfaceLanguage} />
-        <input type="hidden" name="practiceLanguage" value={practiceLanguage} />
+
 
         <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-700 hover:to-violet-600" disabled={isLoading}>
           {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
@@ -154,8 +117,6 @@ export default function SignUpPage() {
     const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const interfaceLanguage = formData.get('interfaceLanguage') as string;
-    const practiceLanguage = formData.get('practiceLanguage') as string;
 
     try {
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -171,20 +132,7 @@ export default function SignUpPage() {
       });
       if (signUpError) throw new Error(signUpError.message);
 
-      // Save language preferences to database
-      if (signUpData.user) {
-        const { error: preferencesError } = await supabase
-          .from("user_preferences")
-          .insert({
-            uid: signUpData.user.id,
-            preferred_lang: interfaceLanguage,
-            practice_lang: practiceLanguage,
-          });
 
-        if (preferencesError) {
-          console.error("Failed to save language preferences:", preferencesError);
-        }
-      }
 
       console.log("Sign-up successful.", signUpData);
       alert("Please verify your email!")
