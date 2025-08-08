@@ -91,20 +91,63 @@ function LoginPageContent() {
       console.log("User session:", loginData.session);
       console.log("User data:", loginData.user);
       
-      // Test multiple redirect methods
-      console.log("Attempting redirect to dashboard...");
+      // Check if user has language preferences before redirecting
+      console.log("Checking user preferences before redirect...");
       
-      // Method 1: Direct window.location (most reliable)
-      console.log("Using window.location redirect");
-      window.location.href = `/dashboard?lang=${language}`;
-      
-      // Fallback method
-      setTimeout(() => {
-        if (window.location.pathname === '/login') {
-          console.log("Fallback: Using router.push");
-          router.push(`/dashboard?lang=${language}`);
+      try {
+        const { data: preferences } = await supabase
+          .from('user_preferences')
+          .select('preferred_lang, practice_lang')
+          .eq('uid', loginData.user.id)
+          .maybeSingle();
+
+        if (preferences?.preferred_lang && preferences?.practice_lang) {
+          // User has completed language setup, redirect to dashboard
+          console.log("User has preferences, redirecting to dashboard");
+          window.location.href = `/dashboard?lang=${language}`;
+          
+          // Fallback method
+          setTimeout(() => {
+            if (window.location.pathname === '/login') {
+              console.log("Fallback: Using router.push to dashboard");
+              router.push(`/dashboard?lang=${language}`);
+            }
+          }, 500);
+        } else {
+          // User needs to complete language setup - delete incomplete account
+          console.log("User missing preferences, deleting incomplete account");
+          
+          try {
+            const deleteResponse = await fetch('/api/delete-incomplete-user', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userId: loginData.user.id,
+                reason: 'Incomplete language setup - login without preferences'
+              }),
+            });
+
+            if (deleteResponse.ok) {
+              console.log("Successfully deleted incomplete user account");
+            } else {
+              console.error("Failed to delete incomplete user account");
+            }
+          } catch (deleteError) {
+            console.error("Error calling delete API:", deleteError);
+          }
+
+          // Sign out and redirect to signup
+          await supabase.auth.signOut();
+          window.location.href = `/signup?error=incomplete_account_deleted`;
         }
-      }, 500);
+      } catch (prefError) {
+        console.error("Error checking preferences:", prefError);
+        // If we can't check preferences, assume they need setup
+        console.log("Error checking preferences, redirecting to language setup");
+        window.location.href = `/language-setup`;
+      }
       
       // For right now : 
       // router.push(`/success`);
@@ -127,7 +170,7 @@ function LoginPageContent() {
     });
 
     const googleLang = language === "es" ? "es-419" : language;
-    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent(`/dashboard?lang=${language}`)}`;
+    const redirectURL = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/auth/callback?next=${encodeURIComponent(`/dashboard?lang=${language}`)}&source=login`;
     
     console.log("Redirect URL:", redirectURL);
 

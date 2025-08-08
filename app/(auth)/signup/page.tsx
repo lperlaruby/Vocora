@@ -202,6 +202,8 @@ function SignUpPageContent() {
     const errorParam = searchParams?.get('error');
     if (errorParam === 'account_not_found') {
       setRedirectMessage(signupTranslations[language].accountNotFoundMessage);
+    } else if (errorParam === 'incomplete_account_deleted') {
+      setRedirectMessage("Your previous incomplete account has been removed. Please complete the full signup process including language selection.");
     }
   }, [searchParams, language]);
 

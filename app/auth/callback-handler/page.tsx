@@ -36,7 +36,7 @@ function CallbackHandlerContent() {
           })
 
           // Check if this is coming from the login page (Google sign-in)
-          const isFromLogin = searchParams?.get('next')?.includes('/dashboard')
+          const isFromLogin = searchParams?.get('source') === 'login' || searchParams?.get('next')?.includes('/dashboard')
           // Check if this is coming from signup page (language-setup)
           const isFromSignup = searchParams?.get('next')?.includes('/language-setup')
           
@@ -56,6 +56,47 @@ function CallbackHandlerContent() {
               
               setTimeout(() => {
                 router.push('/login?error=google_account_not_exists')
+              }, 2000)
+              return
+            }
+            
+            // For existing users logging in with Google, check if they have language preferences
+            const { data: preferences } = await supabase
+              .from('user_preferences')
+              .select('preferred_lang, practice_lang')
+              .eq('uid', data.session.user.id)
+              .maybeSingle()
+            
+            if (!preferences?.preferred_lang || !preferences?.practice_lang) {
+              console.log('User missing language preferences, deleting incomplete account')
+              setStatus('Incomplete account detected. Cleaning up and redirecting to signup.')
+              
+              try {
+                const deleteResponse = await fetch('/api/delete-incomplete-user', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    userId: data.session.user.id,
+                    reason: 'Incomplete language setup - OAuth login without preferences'
+                  }),
+                });
+
+                if (deleteResponse.ok) {
+                  console.log("Successfully deleted incomplete user account");
+                } else {
+                  console.error("Failed to delete incomplete user account");
+                }
+              } catch (deleteError) {
+                console.error("Error calling delete API:", deleteError);
+              }
+
+              // Sign out and redirect to signup
+              await supabase.auth.signOut()
+              
+              setTimeout(() => {
+                router.push('/signup?error=incomplete_account_deleted')
               }, 2000)
               return
             }

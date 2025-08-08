@@ -15,7 +15,7 @@ export function useUserPreferences(setPracticeLang: (val: "en" | "es" | "zh") =>
 
       const { data, error } = await supabase
         .from("user_preferences")
-        .select("practice_lang")
+        .select("practice_lang, preferred_lang")
         .eq("uid", session.user.id)
         .maybeSingle();
 
@@ -26,6 +26,35 @@ export function useUserPreferences(setPracticeLang: (val: "en" | "es" | "zh") =>
 
       if (data?.practice_lang && ["en", "es", "zh"].includes(data.practice_lang)) {
         setPracticeLang(data.practice_lang);
+      } else {
+        // If no user preferences exist, delete the incomplete user account
+        console.log("No user preferences found, deleting incomplete user account");
+        
+        try {
+          const response = await fetch('/api/delete-incomplete-user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: session.user.id,
+              reason: 'Incomplete language setup - accessed dashboard without preferences'
+            }),
+          });
+
+          if (response.ok) {
+            console.log("Successfully deleted incomplete user account");
+          } else {
+            console.error("Failed to delete incomplete user account");
+          }
+        } catch (deleteError) {
+          console.error("Error calling delete API:", deleteError);
+        }
+
+        // Sign out the user and redirect to signup
+        await supabase.auth.signOut();
+        router.push("/signup?error=incomplete_account_deleted");
+        return;
       }
     } catch (error) {
       console.error("Error in fetchUserData:", error);
