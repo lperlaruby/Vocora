@@ -274,7 +274,7 @@ export default function SuccessPage() {
               {/* Story Generation Section */}
               <div className="w-full">
                 <div className="flex gap-4 justify-center">
-                  <Button variant="outline" className="mb-4 border-purple-500" onClick={handleGenerateStory}>
+                  <Button variant="outline" className="mb-4" onClick={handleGenerateStory}>
                   {translated.generate}
                   </Button>
 

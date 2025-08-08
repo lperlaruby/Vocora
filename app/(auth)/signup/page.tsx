@@ -297,7 +297,7 @@ export default function SignUpPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-purple-200 text-slate-700 hover:bg-purple-50 flex items-center gap-2 justify-center dark:border-purple-800 dark:text-slate-300 dark:hover:bg-purple-900/50"
+                    className="w-full bg-gray-50 dark:bg-slate-700 text-slate-700 hover:bg-white dark:hover:bg-slate-600 flex items-center gap-2 justify-center dark:text-slate-300 transition-all shadow-sm"
                     onClick={handleGoogleSignUp}
                   >
                     <FcGoogle className="h-5 w-5" />

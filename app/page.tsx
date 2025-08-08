@@ -17,23 +17,22 @@ export default function HomePage() {
       <Navbar/>
       <main className="main-content bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-2 h-full flex flex-col justify-center">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
+          <div className="relative flex items-center justify-center gap-16 md:gap-24 mb-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="w-full max-w-[180px] md:max-w-[280px]"
+              className="flex-shrink-0"
+              style={{ transform: 'translateX(-2rem)' }}
             >
-              <div className="w-full h-auto bg-purple-100 dark:bg-purple-900 rounded-full p-4 md:p-6 flex items-center justify-center">
-                <VocoraMascot className="w-full h-auto" />
-              </div>
+              <VocoraMascot className="w-[280px] h-[280px] md:w-[320px] md:h-[320px]" />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col gap-3 md:gap-4 text-center md:text-left max-w-[500px]"
+              className="flex flex-col gap-3 md:gap-4 text-left max-w-[400px]"
             >
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-violet-500 bg-clip-text text-transparent">
                 {translated.heading}
@@ -41,7 +40,7 @@ export default function HomePage() {
               <p className="text-base md:text-lg text-slate-700 dark:text-slate-300">
                 {translated.description}
               </p>
-              <div className="flex justify-center md:justify-start">
+              <div className="flex justify-start">
                 <Link href="/signup">
                   <Button
                     size="default"
@@ -50,15 +49,6 @@ export default function HomePage() {
                     {translated.buttonText}
                   </Button>
                 </Link>
-                {/* <Link href="/dashboard" className="w-full sm:w-auto">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-900"
-                  >
-                    {translated.buttonText2}
-                  </Button>
-                </Link> */}
               </div>
             </motion.div>
           </div>
@@ -95,27 +85,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-4 md:mt-6 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <h2 className="text-xl md:text-2xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-violet-500 bg-clip-text text-transparent inline-block">
-                {translated.join}
-              </h2>
-              <div className="flex justify-center">
-                <Link href="/signup">
-                  <Button
-                    size="default"
-                    className="bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-700 hover:to-violet-600"
-                  >
-                    {translated.signUp}
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
+
         </div>
       </main>
       <Footer/>

@@ -323,8 +323,8 @@ function DashboardPage() {
                         className={`${
                           showWordList 
                             ? "bg-purple-500 hover:bg-purple-600 text-white" 
-                            : "bg-white hover:bg-gray-100 text-black border-2 border-purple-200"
-                        } shadow-md`}
+                            : "bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
+                        } shadow-sm transition-all`}
                         onClick={() => {
                           setShowWordList(!showWordList);
                           setShowStoryGenerator(false);
@@ -340,8 +340,8 @@ function DashboardPage() {
                         className={`${
                           showStoryGenerator 
                             ? "bg-purple-500 hover:bg-purple-600 text-white" 
-                            : "bg-white hover:bg-gray-100 text-black border-2 border-purple-200"
-                        } shadow-md`}
+                            : "bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
+                        } shadow-sm transition-all`}
                         onClick={() => {
                           setShowStoryGenerator(!showStoryGenerator);
                           setShowWordList(false);
@@ -357,8 +357,8 @@ function DashboardPage() {
                         className={`${
                           showWriting 
                             ? "bg-purple-500 hover:bg-purple-600 text-white" 
-                            : "bg-white hover:bg-gray-100 text-black border-2 border-purple-200"
-                        } shadow-md`}
+                            : "bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
+                        } shadow-sm transition-all`}
                         onClick={() => {
                           setShowWriting(!showWriting);
                           setShowWordList(false);
@@ -374,8 +374,8 @@ function DashboardPage() {
                         className={`${
                           showSaved 
                             ? "bg-purple-500 hover:bg-purple-600 text-white" 
-                            : "bg-white hover:bg-gray-100 text-black border-2 border-purple-200"
-                        } shadow-md`}
+                            : "bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
+                        } shadow-sm transition-all`}
                         onClick={() => {
                           setShowSaved(!showSaved);
                           setShowWordList(false);

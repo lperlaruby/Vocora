@@ -85,11 +85,30 @@ body {
 }
 
 @layer base {
-  * {
+  /* Commented out universal border rule that's causing the line */
+  /* * {
     @apply border-border;
+  } */
+  
+  /* Remove borders from html and body completely */
+  html,
+  body {
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
+  
   body {
     @apply bg-background text-foreground;
+    /* Make body background match the footer so any gap is invisible */
+    background-color: white !important;
+  }
+  
+  .dark body {
+    background-color: #0f172a !important; /* slate-900 to match dark footer */
   }
 }
 
@@ -166,67 +185,25 @@ header.sticky {
   overflow-x: hidden;
 }
 
-/* Footer - absolutely no background in any mode */
+/* Footer styling */
 footer {
-  background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
   flex-shrink: 0; /* Prevent footer from shrinking */
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  /* Ensure seamless transition from main content */
+  margin-top: 0 !important;
 }
 
-/* Comprehensive dark mode footer background removal */
-.dark footer,
-html.dark footer,
-[data-theme="dark"] footer,
-body.dark footer {
-  background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Additional specificity for any potential container backgrounds affecting footer */
-.dark footer *,
-html.dark footer *,
-[data-theme="dark"] footer *,
-body.dark footer * {
-  background-color: inherit !important;
-}
-
-/* Override any inherited dark background specifically for footer */
-.dark body footer,
-html.dark body footer,
-body.dark footer {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Maximum specificity override for footer in dark mode */
-html.dark body footer,
-.dark html body footer,
-div.dark footer,
-.page-layout .dark footer,
-.page-layout.dark footer {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Override Tailwind's bg-background utility specifically for footer */
-.dark footer.mt-auto,
-footer.mt-auto {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Nuclear option - override everything for footer */
-[class*="dark"] footer,
-.dark [class*="footer"],
-html[class*="dark"] footer {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
+/* Override any inherited border styles on footer and its children */
+footer * {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
 }
 
 /* Responsive layout adjustments */
@@ -265,6 +242,26 @@ html[class*="dark"] footer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: transparent;
+  border: none !important;
+}
+
+/* Remove borders from container elements that might create lines */
+.container {
+  border: none !important;
+}
+
+/* Override Tailwind's universal border rule for specific elements */
+.page-layout *,
+.main-content *,
+.container * {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+
+/* Ensure page-layout doesn't inherit dark background */
+.dark .page-layout {
+  background: transparent !important;
 }
 
 .page-content {
@@ -278,9 +275,11 @@ html[class*="dark"] footer {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 1rem; /* Add padding to prevent content cutoff */
-  /* Ensure content doesn't exceed viewport */
-  max-height: calc(100vh - 140px); /* Account for navbar (~80px) and footer (~60px) */
+  padding-bottom: 2.5rem; /* Add padding to prevent content being hidden behind fixed footer */
+  /* Remove any bottom border that might create a line above footer */
+  border-bottom: none !important;
+  /* Fill remaining space with fixed footer */
+  min-height: calc(100vh - 80px); /* Account for navbar height only */
 }
 
 /* Sticky Footer Layout (legacy support) */

@@ -106,7 +106,7 @@ export default function LanguageSetupPage() {
                     <Label className="dark:text-slate-200">{signupTranslations[language].interfaceLanguageLabel}</Label>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{signupTranslations[language].interfaceLanguageDescription}</p>
                     <Select value={interfaceLanguage} onValueChange={(value: "en" | "es" | "zh") => setInterfaceLanguage(value)}>
-                      <SelectTrigger className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -122,7 +122,7 @@ export default function LanguageSetupPage() {
                     <Label className="dark:text-slate-200">{signupTranslations[language].practiceLanguageLabel}</Label>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{signupTranslations[language].practiceLanguageDescription}</p>
                     <Select value={practiceLanguage} onValueChange={(value: "en" | "es" | "zh") => setPracticeLanguage(value)}>
-                      <SelectTrigger className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

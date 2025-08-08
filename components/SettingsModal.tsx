@@ -475,7 +475,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <Button 
               onClick={onClose} 
               variant="outline"
-              className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-900/50"
             >
               {t.close}
             </Button>
