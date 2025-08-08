@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import dashBoardTranslations from "@/lang/Dashboard";
-import { LogOut, User, Settings, Sparkles, X, Globe, Menu } from "lucide-react";
+import { LogOut, User, Settings, Sparkles, X, Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { SettingsModal } from "@/components/SettingsModal";
 import { useUser } from "@/hooks/account/useUser";
@@ -54,8 +54,8 @@ export function Navbar({
   // Check if we're on a dashboard page
   const isDashboardPage = pathname?.startsWith('/dashboard');
   
-  // Check if we're on login or signup pages
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  // Check if we're on login, signup, or language-setup pages
+  const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname === '/language-setup';
 
   const languageOptions = [
     { value: "en", label: "English"},
@@ -191,7 +191,6 @@ export function Navbar({
                 <SelectTrigger className="w-[140px] bg-white/20 border-white/30 text-white">
                   <SelectValue>
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
                       <span className="hidden sm:inline">{languageOptions.find(opt => opt.value === language)?.label}</span>
                     </div>
                   </SelectValue>
@@ -225,10 +224,10 @@ export function Navbar({
         <div className="flex md:hidden items-center gap-2">
           {!isDashboardPage && !isAuthPage && (
             <Select value={language} onValueChange={(value: "en" | "es" | "zh") => setLanguage(value)}>
-              <SelectTrigger className="w-[60px] bg-white/20 border-white/30 text-white">
+              <SelectTrigger className="w-[100px] bg-white/20 border-white/30 text-white">
                 <SelectValue>
                   <div className="flex items-center gap-1">
-                    <Globe className="h-4 w-4" />
+                    <span className="text-sm">{languageOptions.find(opt => opt.value === language)?.label}</span>
                   </div>
                 </SelectValue>
               </SelectTrigger>

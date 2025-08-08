@@ -99,7 +99,7 @@ header.sticky {
 }
 
 /* Dark mode overrides */
-.dark {
+.dark body {
   background-color: #2b2b2b;
   color: #e6e6e6;
 }
@@ -166,10 +166,121 @@ header.sticky {
   overflow-x: hidden;
 }
 
-/* Footer - no background override */
+/* Footer - absolutely no background in any mode */
 footer {
   background: none !important;
   background-color: transparent !important;
+  background-image: none !important;
+  flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+/* Comprehensive dark mode footer background removal */
+.dark footer,
+html.dark footer,
+[data-theme="dark"] footer,
+body.dark footer {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Additional specificity for any potential container backgrounds affecting footer */
+.dark footer *,
+html.dark footer *,
+[data-theme="dark"] footer *,
+body.dark footer * {
+  background-color: inherit !important;
+}
+
+/* Override any inherited dark background specifically for footer */
+.dark body footer,
+html.dark body footer,
+body.dark footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Maximum specificity override for footer in dark mode */
+html.dark body footer,
+.dark html body footer,
+div.dark footer,
+.page-layout .dark footer,
+.page-layout.dark footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Override Tailwind's bg-background utility specifically for footer */
+.dark footer.mt-auto,
+footer.mt-auto {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Nuclear option - override everything for footer */
+[class*="dark"] footer,
+.dark [class*="footer"],
+html[class*="dark"] footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Responsive layout adjustments */
+@media (max-height: 600px) {
+  footer {
+    padding: 0.5rem 0; /* Reduce padding on very small screens */
+  }
+  
+  .main-content {
+    padding-bottom: 0.5rem;
+    max-height: calc(100vh - 120px); /* Smaller calculation for short screens */
+  }
+}
+
+@media (max-height: 500px) {
+  .main-content {
+    padding-bottom: 0.25rem;
+    max-height: calc(100vh - 100px); /* Even smaller for very short screens */
+  }
+}
+
+@media (max-height: 400px) {
+  footer {
+    display: none; /* Hide footer on extremely small screens */
+  }
+  
+  .main-content {
+    max-height: calc(100vh - 80px); /* Just account for navbar */
+  }
+}
+
+/* Proper Page Layout with Footer */
+.page-layout {
+  min-height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 1rem; /* Add padding to prevent content cutoff */
+  /* Ensure content doesn't exceed viewport */
+  max-height: calc(100vh - 140px); /* Account for navbar (~80px) and footer (~60px) */
 }
 
 /* Sticky Footer Layout (legacy support) */

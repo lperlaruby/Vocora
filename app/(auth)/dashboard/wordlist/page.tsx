@@ -22,9 +22,9 @@ export default function WordListPage() {
   const translated = wordLists[language];
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="page-layout">
       <Navbar isAuthenticated={true} showDashboard={true} />
-      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white overflow-y-auto">
+      <main className="main-content bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -77,7 +77,7 @@ export default function LanguageSetupPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar showLogout={false} />
       <main className="flex-1 flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
         <div className="container mx-auto px-4 py-8 md:py-12">
           <motion.div
@@ -88,9 +88,9 @@ export default function LanguageSetupPage() {
           >
             <Card className="border-purple-100 shadow-md dark:border-purple-800 dark:bg-slate-800">
               <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-center">Language Preferences</CardTitle>
+                <CardTitle className="text-2xl font-bold text-center">{signupTranslations[language].languageSetupTitle}</CardTitle>
                 <CardDescription className="text-center dark:text-slate-400">
-                  Let's set up your language preferences to personalize your experience.
+                  {signupTranslations[language].languageSetupDescription}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -139,7 +139,7 @@ export default function LanguageSetupPage() {
                     disabled={isLoading}
                   >
                     {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Saving..." : "Continue to Dashboard"}
+                    {isLoading ? signupTranslations[language].savingButton : signupTranslations[language].continueButton}
                   </Button>
                 </form>
               </CardContent>

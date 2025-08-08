@@ -222,7 +222,7 @@ export default function SignUpPage() {
 
       console.log("Sign-up successful.", signUpData);
       alert("Please verify your email!")
-      router.push(`/login`);
+      router.push(`/language-setup`);
     } catch (error) {
       setError(error instanceof Error ? error.message : signupTranslations[language].unexpectedError);
     } finally {
@@ -259,9 +259,9 @@ export default function SignUpPage() {
   }
 
   return (
-    <>
+    <div className="page-layout">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+      <main className="main-content flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
         <div className="container mx-auto px-4 py-8 md:py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -319,6 +319,6 @@ export default function SignUpPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

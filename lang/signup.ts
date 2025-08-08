@@ -38,7 +38,12 @@ const signupTranslations = {
         english: "English",
         spanish: "Spanish", 
         chinese: "Chinese"
-      }
+      },
+      // Language setup page translations
+      languageSetupTitle: "Language Preferences",
+      languageSetupDescription: "Let's set up your language preferences to personalize your experience.",
+      continueButton: "Continue to Dashboard",
+      savingButton: "Saving..."
     },
     es: {
       title: "Regístrate",
@@ -76,7 +81,12 @@ const signupTranslations = {
         english: "Inglés",
         spanish: "Español",
         chinese: "Chino"
-      }
+      },
+      // Language setup page translations
+      languageSetupTitle: "Preferencias de Idioma",
+      languageSetupDescription: "Configuremos tus preferencias de idioma para personalizar tu experiencia.",
+      continueButton: "Continuar al Tablero",
+      savingButton: "Guardando..."
     },
     zh: {
       title: "注册",
@@ -114,7 +124,12 @@ const signupTranslations = {
         english: "英语",
         spanish: "西班牙语",
         chinese: "中文"
-      }
+      },
+      // Language setup page translations
+      languageSetupTitle: "语言偏好",
+      languageSetupDescription: "让我们设置您的语言偏好来个性化您的体验。",
+      continueButton: "继续到仪表板",
+      savingButton: "保存中..."
     },
   } as const; // Use 'as const' to make the structure readonly
   

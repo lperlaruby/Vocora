@@ -290,9 +290,9 @@ function DashboardPage() {
   }
 
   return (
-    <>
+    <div className="page-layout">
       <Navbar isAuthenticated={isAuthenticated} />
-      <main className="flex-1 bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white overflow-y-auto">
+      <main className="main-content bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-4">
         <div className="max-w-5xl mx-auto space-y-4">
           {/* Welcome Section */}
@@ -997,7 +997,7 @@ function DashboardPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 

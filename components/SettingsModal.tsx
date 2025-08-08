@@ -60,6 +60,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   // State for combined save functionality
   const [isSavingAllSettings, setIsSavingAllSettings] = useState(false);
   
+  // State for theme preferences with save button
+  const [selectedTheme, setSelectedTheme] = useState<"light" | "dark">("light");
+  
   // Language options using translations
   const languageOptions = [
     { value: "en", label: t.languages.english },
@@ -78,6 +81,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   useEffect(() => {
     setSelectedLanguage(language);
   }, [language]);
+
+  // Initialize selectedTheme with current theme
+  useEffect(() => {
+    setSelectedTheme(theme === "dark" ? "dark" : "light");
+  }, [theme]);
 
   // Fetch user data on mount
   useEffect(() => {
@@ -177,6 +185,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setPracticeLang(newLang);
   };
 
+  // Handle theme change (just update local state, don't apply immediately)
+  const handleThemeChange = (isDark: boolean) => {
+    setSelectedTheme(isDark ? "dark" : "light");
+  };
+
   // Combined save function for both interface and practice language
   const saveAllSettings = async () => {
     if (userLoading) {
@@ -218,6 +231,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         return;
       }
 
+      // Apply theme change
+      setTheme(selectedTheme);
+
       // Update language immediately and reload from database for consistency
       setLanguage(selectedLanguage);
       console.log("Language updated immediately to:", selectedLanguage);
@@ -233,7 +249,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   // Check if there are unsaved changes
-  const hasUnsavedChanges = selectedLanguage !== language || practiceLang !== originalPracticeLang;
+  const hasUnsavedChanges = selectedLanguage !== language || practiceLang !== originalPracticeLang || selectedTheme !== (theme === "dark" ? "dark" : "light");
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -371,8 +387,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </p>
                 </div>
                 <Switch
-                  checked={theme === "dark"}
-                  onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                  checked={selectedTheme === "dark"}
+                  onCheckedChange={handleThemeChange}
                 />
               </div>
             </CardContent>
