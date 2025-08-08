@@ -14,12 +14,17 @@ import { motion } from "framer-motion";
 import { Icons } from "@/components/ui/icons";
 
 export default function LanguageSetupPage() {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interfaceLanguage, setInterfaceLanguage] = useState<"en" | "es" | "zh">("en");
   const [practiceLanguage, setPracticeLanguage] = useState<"en" | "es" | "zh">("en");
   const router = useRouter();
+
+  // Initialize interface language with current language context
+  useEffect(() => {
+    setInterfaceLanguage(language);
+  }, [language]);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -31,6 +36,12 @@ export default function LanguageSetupPage() {
     };
     checkAuth();
   }, [router]);
+
+  // Handle interface language change - update both local state and global context
+  const handleInterfaceLanguageChange = (value: "en" | "es" | "zh") => {
+    setInterfaceLanguage(value);
+    setLanguage(value); // This will immediately update the interface language
+  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,7 +116,7 @@ export default function LanguageSetupPage() {
                   <div className="space-y-2">
                     <Label className="dark:text-slate-200">{signupTranslations[language].interfaceLanguageLabel}</Label>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{signupTranslations[language].interfaceLanguageDescription}</p>
-                    <Select value={interfaceLanguage} onValueChange={(value: "en" | "es" | "zh") => setInterfaceLanguage(value)}>
+                    <Select value={interfaceLanguage} onValueChange={handleInterfaceLanguageChange}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
