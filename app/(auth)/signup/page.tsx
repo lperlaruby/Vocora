@@ -1,7 +1,7 @@
 "use client";
 import type React from "react"
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +17,13 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, EyeOff } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 function SignUpForm({
   isLoading,
   onSubmit,
-}: { isLoading: boolean; onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void> }) {
+  preFilledEmail,
+}: { isLoading: boolean; onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>; preFilledEmail?: string }) {
   const { language } = useLanguage(); // Get current language from context
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -78,7 +80,15 @@ function SignUpForm({
 
         <div className="space-y-2">
           <Label htmlFor="email" className="dark:text-slate-200">{signupTranslations[language].emailLabel}</Label>
-          <Input id="email" name="email" type="email" required placeholder={signupTranslations[language].emailPlaceholder} className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900" />
+          <Input 
+            id="email" 
+            name="email" 
+            type="email" 
+            required 
+            placeholder={signupTranslations[language].emailPlaceholder} 
+            defaultValue={preFilledEmail || ""}
+            className="border-purple-200 focus-visible:ring-purple-500 dark:border-purple-800 dark:bg-slate-900" 
+          />
         </div>
 
 
@@ -178,11 +188,25 @@ function SignUpForm({
   );
 }
 
-export default function SignUpPage() {
+function SignUpPageContent() {
   const { language } = useLanguage(); // Get current language from context
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showEmailVerificationDialog, setShowEmailVerificationDialog] = useState(false);
+  const [redirectMessage, setRedirectMessage] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle redirect from login page when account not found
+  useEffect(() => {
+    const errorParam = searchParams?.get('error');
+    if (errorParam === 'account_not_found') {
+      setRedirectMessage(signupTranslations[language].accountNotFoundMessage);
+    }
+  }, [searchParams, language]);
+
+  // Get pre-filled email from URL
+  const preFilledEmail = searchParams?.get('email') || "";
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -205,10 +229,18 @@ export default function SignUpPage() {
     }
 
     try {
+      // The main protection will be in the callback handler
+      // Here we just do the basic Supabase signup validation
+
+      // Configure the email confirmation redirect URL
+      const baseUrl = process.env.NEXT_PUBLIC_NEXTAUTH_URL || window.location.origin;
+      const emailRedirectTo = `${baseUrl}/auth/callback?next=${encodeURIComponent('/language-setup')}`;
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -216,13 +248,20 @@ export default function SignUpPage() {
           },
         },
       });
-      if (signUpError) throw new Error(signUpError.message);
-
-
+      
+      if (signUpError) {
+        // Handle specific Supabase errors
+        if (signUpError.message.includes('User already registered')) {
+          throw new Error(signupTranslations[language].errorAccountCompleted);
+        }
+        throw new Error(signUpError.message);
+      }
 
       console.log("Sign-up successful.", signUpData);
-      alert("Please verify your email!")
-      router.push(`/language-setup`);
+      
+      // Show email verification dialog instead of alert and redirect
+      setShowEmailVerificationDialog(true);
+      
     } catch (error) {
       setError(error instanceof Error ? error.message : signupTranslations[language].unexpectedError);
     } finally {
@@ -277,7 +316,12 @@ export default function SignUpPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                  <SignUpForm isLoading={isLoading} onSubmit={onSubmit} />
+                  {redirectMessage && (
+                    <div className="mb-4 p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md dark:text-blue-400 dark:bg-blue-950 dark:border-blue-800">
+                      {redirectMessage}
+                    </div>
+                  )}
+                  <SignUpForm isLoading={isLoading} onSubmit={onSubmit} preFilledEmail={preFilledEmail} />
                   {error && (
                     <div className="mt-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:text-red-400 dark:bg-red-950 dark:border-red-800">
                       {error}
@@ -319,6 +363,45 @@ export default function SignUpPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Email Verification Dialog */}
+      <AlertDialog open={showEmailVerificationDialog} onOpenChange={setShowEmailVerificationDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{signupTranslations[language].emailVerificationTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {signupTranslations[language].emailVerificationDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogAction onClick={() => {
+            setShowEmailVerificationDialog(false);
+            router.push('/login');
+          }}>
+            {signupTranslations[language].emailVerificationButton}
+          </AlertDialogAction>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={
+      <div className="page-layout">
+        <Navbar />
+        <main className="main-content flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <SignUpPageContent />
+    </Suspense>
+  )
 }

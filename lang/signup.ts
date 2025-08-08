@@ -43,7 +43,15 @@ const signupTranslations = {
       languageSetupTitle: "Language Preferences",
       languageSetupDescription: "Let's set up your language preferences to personalize your experience.",
       continueButton: "Continue to Dashboard",
-      savingButton: "Saving..."
+      savingButton: "Saving...",
+      // Email verification dialog translations
+      emailVerificationTitle: "Please Verify Your Email",
+      emailVerificationDescription: "We've sent you an email with a verification link. Please check your inbox and click the link to complete your account setup.",
+      emailVerificationButton: "Got it!",
+      // Account protection messages
+      errorAccountCompleted: "An account with this email already exists and has completed setup. Please sign in instead.",
+      // Account not found redirect message
+      accountNotFoundMessage: "No account found with this email. Please create a new account below."
     },
     es: {
       title: "Regístrate",
@@ -86,7 +94,15 @@ const signupTranslations = {
       languageSetupTitle: "Preferencias de Idioma",
       languageSetupDescription: "Configuremos tus preferencias de idioma para personalizar tu experiencia.",
       continueButton: "Continuar al Tablero",
-      savingButton: "Guardando..."
+      savingButton: "Guardando...",
+      // Email verification dialog translations
+      emailVerificationTitle: "Por favor verifica tu email",
+      emailVerificationDescription: "Te hemos enviado un email con un enlace de verificación. Por favor revisa tu bandeja de entrada y haz clic en el enlace para completar la configuración de tu cuenta.",
+      emailVerificationButton: "¡Entendido!",
+      // Account protection messages
+      errorAccountCompleted: "Ya existe una cuenta con este email y ha completado la configuración. Por favor inicia sesión en su lugar.",
+      // Account not found redirect message
+      accountNotFoundMessage: "No se encontró una cuenta con este email. Por favor crea una nueva cuenta a continuación."
     },
     zh: {
       title: "注册",
@@ -129,7 +145,15 @@ const signupTranslations = {
       languageSetupTitle: "语言偏好",
       languageSetupDescription: "让我们设置您的语言偏好来个性化您的体验。",
       continueButton: "继续到仪表板",
-      savingButton: "保存中..."
+      savingButton: "保存中...",
+      // Email verification dialog translations
+      emailVerificationTitle: "请验证您的邮箱",
+      emailVerificationDescription: "我们已向您发送了包含验证链接的邮件。请检查您的收件箱并点击链接以完成账户设置。",
+      emailVerificationButton: "明白了！",
+      // Account protection messages
+      errorAccountCompleted: "此邮箱已有账户且已完成设置。请改为登录。",
+      // Account not found redirect message
+      accountNotFoundMessage: "未找到此邮箱的账户。请在下方创建新账户。"
     },
   } as const; // Use 'as const' to make the structure readonly
   

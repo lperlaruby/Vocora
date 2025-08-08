@@ -12,6 +12,7 @@ import { useLanguage } from "@/lang/LanguageContext";
 import signupTranslations from "@/lang/signup";
 import { motion } from "framer-motion";
 import { Icons } from "@/components/ui/icons";
+import Link from "next/link";
 
 export default function LanguageSetupPage() {
   const { language, setLanguage } = useLanguage();
@@ -21,17 +22,47 @@ export default function LanguageSetupPage() {
   const [practiceLanguage, setPracticeLanguage] = useState<"en" | "es" | "zh">("en");
   const router = useRouter();
 
+  // Handle logout when Vocora logo is clicked
+  const handleLogoClick = async () => {
+    try {
+      await supabase.auth.signOut();
+      // Clear any cached data
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Force clear even if logout fails
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/");
+    }
+  };
+
   // Initialize interface language with current language context
   useEffect(() => {
     setInterfaceLanguage(language);
   }, [language]);
 
-  // Check if user is authenticated
+  // Check if user is authenticated and doesn't already have completed preferences
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         router.push("/login");
+        return;
+      }
+
+      // Check if user already has completed language preferences
+      const { data: preferences } = await supabase
+        .from('user_preferences')
+        .select('preferred_lang, practice_lang')
+        .eq('uid', session.user.id)
+        .maybeSingle();
+
+      if (preferences?.preferred_lang && preferences?.practice_lang) {
+        console.log('User already has completed preferences, redirecting to dashboard');
+        router.push("/dashboard");
       }
     };
     checkAuth();
@@ -88,7 +119,17 @@ export default function LanguageSetupPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar showLogout={false} />
+      {/* Custom header with clickable Vocora logo that logs out */}
+      <header className="sticky top-0 z-10 bg-gradient-to-r from-purple-600 to-violet-500 text-white">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <button 
+            onClick={handleLogoClick}
+            className="text-2xl font-bold text-white hover:text-white/90 transition-colors"
+          >
+            Vocora
+          </button>
+        </div>
+      </header>
       <main className="flex-1 flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
         <div className="container mx-auto px-4 py-8 md:py-12">
           <motion.div

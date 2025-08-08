@@ -14,7 +14,7 @@ export default function HomePage() {
   const translated = homeTranslations[language as keyof typeof homeTranslations];
   return (
     <div className="page-layout">
-      <Navbar/>
+      <Navbar isAuthenticated={false} showLogout={false}/>
       <main className="main-content bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900 dark:text-white">
         <div className="container mx-auto px-4 py-2 h-full flex flex-col justify-center">
           <div className="relative flex items-center justify-center gap-16 md:gap-24 mb-8">

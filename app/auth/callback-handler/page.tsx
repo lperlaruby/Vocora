@@ -34,6 +34,54 @@ function CallbackHandlerContent() {
             hasUser: !!data.session.user,
             userEmail: data.session.user?.email
           })
+
+          // Check if this is coming from the login page (Google sign-in)
+          const isFromLogin = searchParams?.get('next')?.includes('/dashboard')
+          // Check if this is coming from signup page (language-setup)
+          const isFromSignup = searchParams?.get('next')?.includes('/language-setup')
+          
+          if (isFromLogin) {
+            // For login page Google sign-in, check if this is a new user
+            const userCreatedAt = new Date(data.session.user.created_at)
+            const now = new Date()
+            const timeDiff = now.getTime() - userCreatedAt.getTime()
+            
+            // If user was created within the last 10 seconds, it's a new account
+            if (timeDiff < 10000) {
+              console.log('New Google user detected, redirecting to login with error')
+              setStatus('Account not found. Please sign up first.')
+              
+              // Sign out the new user immediately
+              await supabase.auth.signOut()
+              
+              setTimeout(() => {
+                router.push('/login?error=google_account_not_exists')
+              }, 2000)
+              return
+            }
+          }
+          
+          if (isFromSignup) {
+            // For signup flows, check if user already has completed language preferences
+            const { data: preferences } = await supabase
+              .from('user_preferences')
+              .select('preferred_lang, practice_lang')
+              .eq('uid', data.session.user.id)
+              .maybeSingle()
+            
+            if (preferences?.preferred_lang && preferences?.practice_lang) {
+              console.log('User with completed preferences trying to signup again')
+              setStatus('Account already exists. Please sign in instead.')
+              
+              // Sign out the user and redirect to sign-in page
+              await supabase.auth.signOut()
+              
+              setTimeout(() => {
+                router.push('/login?error=account_exists_signup_attempt')
+              }, 2000)
+              return
+            }
+          }
           
           setStatus('Authentication successful! Redirecting...')
           

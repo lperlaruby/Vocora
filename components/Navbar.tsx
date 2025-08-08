@@ -11,7 +11,7 @@ import dashBoardTranslations from "@/lang/Dashboard";
 import { LogOut, User, Settings, Sparkles, X, Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { SettingsModal } from "@/components/SettingsModal";
-import { useUser } from "@/hooks/account/useUser";
+import { useAuthenticatedUser } from "@/hooks/account/useAuthenticatedUser";
 import { supabase } from "@/lib/supabase";
 
 type NavbarProps = {
@@ -46,10 +46,10 @@ export function Navbar({
   const translated = dashBoardTranslations[language];
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useUser();
+  const { user, loading, isFullyAuthenticated } = useAuthenticatedUser();
   
-  // Use prop if provided, otherwise use hook
-  const isAuthenticated = propIsAuthenticated !== undefined ? propIsAuthenticated : !!user;
+  // Use prop if provided, otherwise use hook (but only consider fully authenticated users)
+  const isAuthenticated = propIsAuthenticated !== undefined ? propIsAuthenticated : isFullyAuthenticated;
   
   // Check if we're on a dashboard page
   const isDashboardPage = pathname?.startsWith('/dashboard');
@@ -123,6 +123,7 @@ export function Navbar({
     console.log('Navbar Debug:', { 
       propIsAuthenticated, 
       user: !!user, 
+      isFullyAuthenticated,
       isAuthenticated, 
       pathname,
       showLogout,

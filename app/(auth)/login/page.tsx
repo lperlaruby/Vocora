@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react"
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,11 +43,22 @@ function LoginForm({
   );
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { language } = useLanguage(); // Get current language from context
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check for error parameter in URL (e.g. from Google OAuth rejection or signup attempts)
+  useEffect(() => {
+    const errorParam = searchParams?.get('error');
+    if (errorParam === 'google_account_not_exists') {
+      setError(loginTranslations[language].errorGoogleAccountNotExists);
+    } else if (errorParam === 'account_exists_signup_attempt') {
+      setError(loginTranslations[language].errorAccountExistsSignupAttempt);
+    }
+  }, [searchParams, language]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,9 +74,14 @@ export default function LoginPage() {
       const { data: loginData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
       if (signInError) {
-        // Update error message for email not confirmed
+        // Check for different types of sign-in errors
         if (signInError.message.includes("Email not confirmed")) {
           throw new Error(loginTranslations[language].errorEmailNotConfirmed);
+        } else if (signInError.message.includes("Invalid login credentials")) {
+          // Account doesn't exist, redirect to signup
+          console.log("Account doesn't exist, redirecting to signup");
+          router.push('/signup?error=account_not_found&email=' + encodeURIComponent(email));
+          return; // Don't throw error, just redirect
         } else {
           throw new Error(signInError.message);
         }
@@ -210,5 +226,26 @@ export default function LoginPage() {
       </main>
       <Footer />
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="page-layout">
+        <Navbar />
+        <main className="main-content flex items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-purple-950 dark:to-slate-900">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   )
 }
