@@ -7,16 +7,18 @@ import { Header } from "@/components/story-generator/header";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/lang/LanguageContext";
 import storyGenerator from "@/lang/Story-Generator/story-generator";
+import dashBoardTranslations from "@/lang/Dashboard";
+import { useHoverWord } from "@/hooks/story-generator/useHoverDefinitions";
 import { splitIntoWords, cleanWord } from "@/lib/utils";
 
 export default function SuccessPage() {
   const [words, setWords] = useState<string[]>([]);
   const [newWord, setNewWord] = useState("");
   const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
+  const [practiceLang, setPracticeLang] = useState<"en" | "es" | "zh">("en");
   const [generatedStory, setGeneratedStory] = useState("");
   const [highlightedStory, setHighlightedStory] = useState("");
-  const [hoveredWord, setHoveredWord] = useState<{ word: string; index: number } | null>(null);
-  const [definitions, setDefinitions] = useState<{ [key: string]: { definition: string; partOfSpeech: string } }>({});
+
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [story, setStory] = useState<string | null>(null);
@@ -25,6 +27,10 @@ export default function SuccessPage() {
   const [isSessionLoading, setIsSessionLoading] = useState<boolean>(true);  // To track loading state of session
   const { language } = useLanguage();
   const translated = storyGenerator[language];
+  const dashboardTranslated = dashBoardTranslations[language];
+  
+  // Use the proper hover word hook for definitions
+  const {hoveredWord, setHoveredWord, definitions, handleAddHoveredWord} = useHoverWord(practiceLang, words, setWords, story || "", language);
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -81,22 +87,7 @@ export default function SuccessPage() {
     setNewWord("");
   };
 
-  // Function to add the hovered word to the database
-  const handleAddHoveredWord = async () => {
-    if (!hoveredWord?.word) return;
 
-    const selectedLanguage = localStorage.getItem("language") || "en";
-
-    // Add the word to the database if it's not already present
-    if (!words.includes(hoveredWord.word)) {
-      const { error } = await supabase.from("vocab_words").insert([{ word: hoveredWord.word, language: selectedLanguage }]);
-      if (error) {
-        console.error("Error adding hovered word:", error);
-      } else {
-        setWords([...words, hoveredWord.word]);
-      }
-    }
-  };
 
   // This function applies highlighting to the generated story
   const applyHighlighting = (story: string) => {
@@ -156,39 +147,7 @@ export default function SuccessPage() {
     }
   };
 
-  // This function fetches the definition of a word
-  useEffect(() => {
-    if (!hoveredWord || definitions[hoveredWord.word]) return;
 
-    const fetchDefinition = async () => {
-      try {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${hoveredWord.word}`);
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          setDefinitions((prev) => ({
-            ...prev,
-            [hoveredWord.word]: {
-              definition: data[0].meanings[0].definitions[0].definition,
-              partOfSpeech: data[0].meanings[0].partOfSpeech,
-            },
-          }));
-        } else {
-          setDefinitions((prev) => ({
-            ...prev,
-            [hoveredWord.word]: { definition: translated.definitionError, partOfSpeech: translated.partofSpeechError},
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching definition:", error);
-        setDefinitions((prev) => ({
-          ...prev,
-          [hoveredWord.word]: { definition: translated.definitionError2, partOfSpeech: translated.partofSpeechError},
-        }));
-      }
-    };
-
-    fetchDefinition();
-  }, [hoveredWord]);
 
 
   // this function converts the text to speech
