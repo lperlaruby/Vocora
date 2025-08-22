@@ -1,64 +1,96 @@
 # Vocora
 
-Vocora is a language reforcement web application designed to help users improve their language skills through AI-powered story generation. The platform offers features such as vocabulary practice, writing feedback, reading comprehension, and more.
+This is my improved version of Vocora, originally built as my senior project in a group. I've made changes to the platform with new features including daily streak tracking, some UI changes, and some database changes.
+
+## What's New
+
+This iteration builds upon my original senior project with several major improvements:
+- **Daily Streak System**: Visual streak counter
+- **Enhanced User Experience**: Redesigned navigation
 
 ## Features
 
-- User authentication (login/signup)
-- Vocabulary wordlist
-- AI-powered chat practice
-- AI-powered story generator
-- Saved progress and personalized settings
+**Language Learning Tools**
+- AI-powered story generator that creates custom stories using your vocabulary words
+- Writing practice with real-time AI feedback on grammar and style
+- Vocabulary list management with word definitions and examples
+- Text-to-speech functionality for pronunciation practice
+- Story saving system to keep track of your favorite generated content
+
+**User Experience**
+- Multi-language interface (English, Spanish, Chinese)
+- Daily streak tracking to maintain learning momentum
+- Google OAuth authentication for easy sign-up
+- Dark and light theme options
+- Responsive design that works on all devices
+
+**Story Generator Features**
+- Choose from short, medium, or long story lengths
+- AI-generated images that match your stories
+- Interactive vocabulary highlighting within stories
+- Save and revisit your favorite stories
+- Hover over words for instant definitions
 
 ## Tech Stack
 
-- **Frontend:** Next.js (React), TypeScript, Tailwind CSS
-- **Backend:** Next.js API routes
-- **Database:** Supabase
-- **State Management:** React Context, custom hooks
-- **Styling:** Tailwind CSS
-- **Testing:** Cypress (end-to-end)
-- **Other:** Shadcn UI components, custom UI components
+Built with modern web technologies for performance and scalability:
+
+- **Frontend**: Next.js 14 with React 18 and TypeScript
+- **Styling**: Tailwind CSS with Shadcn/UI component library
+- **Backend**: Next.js API routes
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth with Google OAuth
+- **AI Services**: OpenAI GPT, Google Generative AI, and Fireworks AI
+- **Deployment**: Vercel
+- **Testing**: Cypress for end-to-end testing
+
 
 ## Getting Started
 
-### Prerequisites
+The easiest way to try Vocora is to visit the live application at [vocora-theta.vercel.app](https://vocora-theta.vercel.app).
 
-- [Node.js](https://nodejs.org/) (v16 or higher recommended)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
+### Running Locally
 
-### Installation
+If you want to run the project locally or contribute:
 
-1. Clone the repository:
+**Prerequisites:**
+- Node.js (v18+)
+- A Supabase account
+- API keys for OpenAI, Google AI, and Fireworks AI
 
+**Setup:**
+1. Clone the repository and install dependencies:
+   ```bash
    git clone https://github.com/your-username/vocora.git
-
    cd vocora
-
-
-2. Install dependencies:
- 
    npm install
+   ```
 
+2. Create a `.env.local` file with your API keys:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   OPENAI_API_KEY=your_openai_api_key
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_key
+   FIREWORKS_API_KEY=your_fireworks_api_key
+   ```
 
-3. Set up environment variables as needed (see `.env.example` if available).
+3. Set up your Supabase database with the necessary tables for users, stories, and preferences.
 
-### Running the Development Server
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-Start the development server with:
+The app will be available at `http://localhost:3000`.
 
-npm run dev
+## Project Structure
 
+The codebase is organized using Next.js App Router with a clear separation of concerns:
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
-
-## Folder Structure
-
-- `app/` - Main application pages and routes
-- `components/` - Reusable UI components
-- `hooks/` - Custom React hooks
-- `lang/` - Localization and language files
-- `lib/` - Utility libraries and API clients
-- `public/` - Static assets
-- `src/pages/api/` - API routes
-- `test/` - Cypress end-to-end tests
+- `app/` - Main application pages and routing
+- `components/` - Reusable UI components and Shadcn/UI elements
+- `hooks/` - Custom React hooks for state management and API calls
+- `lang/` - Internationalization files for English, Spanish, and Chinese
+- `lib/` - Utility functions and API configurations
+- `src/pages/api/` - Additional API routes for AI integrations
